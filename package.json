@@ -1,7 +1,9 @@
 {
   "name": "lemme-in-v2",
+  "description": "An accounts manager.",
   "version": "0.0.0",
   "private": true,
+  "author": "Omar Eloui <omareloui@hotmail.com>",
   "workspaces": [
     "apps/*",
     "packages/*"

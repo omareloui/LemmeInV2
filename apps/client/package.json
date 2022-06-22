@@ -1,0 +1,19 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "start": "node .output/server/index.mjs",
+    "lint": "eslint ./**/*.{[tj]s,vue}",
+    "lint:fix": "eslint . --fix",
+    "lint:check": "eslint --print-config .eslintrc"
+  },
+  "devDependencies": {
+    "eslint-config-custom-vue": "workspace:*",
+    "nuxt": "3.0.0-rc.4",
+    "tsconfig": "workspace:*"
+  }
+}
