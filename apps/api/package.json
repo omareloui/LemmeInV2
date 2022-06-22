@@ -1,0 +1,31 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rimraf ./dist && tsc",
+    "start": "cross-env NODE_ENV=production node dist/index",
+    "dev": "cross-env NODE_ENV=development nodemon -w src src/index.ts",
+    "test": "echo \"No test script is added\"",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "lint:check": "eslint --print-config .eslintrc",
+    "format": "prettier ./{src,public}/**/*.{[jt]s,css,json} --write"
+  },
+  "keywords": [],
+  "author": "",
+  "devDependencies": {
+    "@types/node": "^17.0.12",
+    "eslint-config-custom": "workspace:*",
+    "nodemon": "^2.0.16",
+    "prettier": "^2.7.1",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.8.1",
+    "tsconfig": "workspace:*",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3"
+  }
+}

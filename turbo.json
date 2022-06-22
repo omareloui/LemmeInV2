@@ -1,0 +1,18 @@
+{
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".nuxt/**", ".output/**"]
+    },
+    "lint": {
+      "outputs": []
+    },
+    "dev": {
+      "outputs": ["dist/**", ".nuxt/**", ".output/**"]
+    },
+    "start": {
+      "dependsOn": ["lint", "build"],
+      "outputs": ["dist/**", ".nuxt/**", ".output/**"]
+    }
+  }
+}
