@@ -2,28 +2,14 @@
   "name": "api",
   "version": "1.0.0",
   "scripts": {
-    "build": "rimraf ./dist && tsc",
-    "start": "cross-env NODE_ENV=production node dist/index",
-    "dev": "cross-env NODE_ENV=development nodemon -w src src/index.ts",
-    "test": "echo \"No test script is added\"",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
-    "lint:check": "eslint --print-config .eslintrc"
+    "start": "denon prod",
+    "dev": "denon start",
+    "build": "rimraf -rf dist && mkdir dist && denon build",
+    "lint": "denon lint"
   },
   "devDependencies": {
-    "@types/node": "^17.0.12",
-    "@types/ws": "^8.5.3",
-    "nodemon": "^2.0.16",
-    "rimraf": "^3.0.2",
-    "ts-node": "^10.8.1",
-    "tsconfig": "workspace:*",
-    "typescript": "^4.7.4"
-  },
-  "dependencies": {
-    "@trpc/server": "^9.25.3",
-    "cross-env": "^7.0.3",
     "eslint-config-custom": "workspace:*",
-    "ws": "^8.8.0",
-    "zod": "^3.17.3"
+    "rimraf": "^3.0.2",
+    "tsconfig": "workspace:*"
   }
 }

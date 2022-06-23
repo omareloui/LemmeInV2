@@ -1,7 +1,7 @@
 {
-  "name": "lemme-in-v2",
+  "name": "lemme-in",
   "description": "An accounts manager.",
-  "version": "0.0.0",
+  "version": "2.0.0",
   "private": true,
   "author": "Omar Eloui <omareloui@hotmail.com>",
   "workspaces": [
@@ -10,9 +10,12 @@
   ],
   "scripts": {
     "start": "turbo run start",
+    "api:start": "turbo run api#start",
     "build": "turbo run build",
+    "api:build": "turbo run api#build",
     "dev": "turbo run dev --parallel",
-    "client:dev": "turbo run client#dev --parallel",
+    "client:dev": "turbo run client#dev",
+    "api:dev": "turbo run api#dev",
     "lint": "turbo run lint",
     "client:lint": "turbo run client#lint",
     "api:lint": "turbo run api#lint",

@@ -15,5 +15,5 @@
     "skipLibCheck": true,
     "noImplicitAny": true,
     "strict": true
-  },
+  }
 }

@@ -1,0 +1,73 @@
+{
+  "$schema": "https://deno.land/x/denon@2.4.9/schema.json",
+  "allow": ["net", "env", "read", "write"],
+  "unstable": true,
+
+  "scripts": {
+    "start": {
+      "cmd": "deno run app.ts",
+      "desc": "run server",
+      "env": { "ENV": "development" },
+      "watch": true
+    },
+
+    "test": {
+      "cmd": "deno test",
+      "desc": "Test the server.",
+      "env": { "ENV": "test" },
+      "watch": false
+    },
+
+    "prod": {
+      "cmd": "deno run dist/app.bundle.js",
+      "desc": "Run the server.",
+      "env": { "ENV": "production" },
+      "watch": false
+    },
+
+    "build": {
+      "cmd": "deno bundle app.ts dist/app.bundle.js",
+      "desc": "Build the code for production",
+      "watch": false,
+      "allow": []
+    },
+
+    "fmt": {
+      "cmd": "deno fmt",
+      "desc": "Format the code.",
+      "allow": [],
+      "watch": false
+    },
+
+    "lint": {
+      "cmd": "deno lint",
+      "desc": "Code linter for JavaScript and TypeScript",
+      "watch": false,
+      "allow": []
+    },
+
+    "reload-deps": {
+      "cmd": "deno cache --reload --lock-write .\\deps.ts",
+      "lock": "lock.json",
+      "watch": false,
+      "allow": []
+    },
+
+    "reload-lock": {
+      "cmd": "deno cache --lock-write .\\deps.ts",
+      "lock": "lock.json",
+      "watch": false,
+      "allow": []
+    }
+  },
+
+  "logger": {
+    "fullscreen": true,
+    "quiet": false,
+    "debug": true
+  },
+
+  "watcher": {
+    "skip": ["*/.git/*", "*/.idea/*", "*/.vscode/*", "*/.env/*", "*/requests"]
+  }
+}
