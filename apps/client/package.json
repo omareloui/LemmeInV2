@@ -15,5 +15,8 @@
     "eslint-config-custom": "workspace:^0.0.0",
     "nuxt": "3.0.0-rc.4",
     "tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "@trpc/client": "^9.25.3"
   }
 }
