@@ -1,6 +1,11 @@
 {
   "root": true,
   "extends": [
-    "custom-vue"
-  ]
+    "custom/airbnb",
+    "custom/nuxt",
+    "custom"
+  ],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  }
 }

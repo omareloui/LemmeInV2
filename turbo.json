@@ -1,13 +1,19 @@
 {
+  "$schema": "https://turborepo.org/schema.json",
   "pipeline": {
+    "client#dev": {
+      "cache": false,
+      "outputs": [".nuxt/**", ".output/**"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".nuxt/**", ".output/**"]
     },
-    "lint": {
-      "outputs": []
-    },
+    "lint": {},
+    "client#lint": {},
+    "api#lint": {},
     "dev": {
+      "cache": false,
       "outputs": ["dist/**", ".nuxt/**", ".output/**"]
     },
     "start": {

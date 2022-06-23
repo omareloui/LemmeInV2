@@ -12,11 +12,13 @@
     "start": "turbo run start",
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
+    "client:dev": "turbo run client#dev --parallel",
     "lint": "turbo run lint",
+    "client:lint": "turbo run client#lint",
+    "api:lint": "turbo run api#lint",
     "format": "prettier --write \"{,!(node_modules|.nuxt|.output)/**/}*.{ts,tsx,md,json}\""
   },
   "devDependencies": {
-    "eslint-config-custom": "workspace:*",
     "prettier": "^2.7.1",
     "turbo": "latest"
   },

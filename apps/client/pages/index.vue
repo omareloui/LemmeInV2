@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+console.log("hi");
+</script>
 
 <template>
   <h1>hi!</h1>
