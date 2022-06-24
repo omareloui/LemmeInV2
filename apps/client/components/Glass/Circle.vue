@@ -7,7 +7,7 @@ type OpacityOptions = typeof OPACITY_OPTIONS[number];
 
 withDefaults(
   defineProps<{
-    size: string;
+    size?: string;
     blur?: number;
     opacity?: OpacityOptions;
     float?: boolean;
