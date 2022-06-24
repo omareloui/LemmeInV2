@@ -12,6 +12,25 @@ export default defineNuxtConfig({
     utils: fileURLToPath(new URL("./assets/utils", import.meta.url)),
   },
 
+  components: {
+    dirs: [
+      ...[
+        "Button",
+        "Confirm",
+        "Container",
+        "Dialogue",
+        "FloatingMenu",
+        "Glass",
+        "LayoutsWrapper",
+        "Link",
+        "Notify",
+        "TheNavbar",
+      ].map(c => ({ path: `~~/components/${c}`, prefix: c, global: false })),
+
+      { path: "~~/components/Icon", global: true, prefix: "Icon" },
+    ],
+  },
+
   meta: {
     title: "Lemme In",
 

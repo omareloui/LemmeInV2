@@ -139,14 +139,14 @@ onBeforeUnmount(removeEvents);
     <Container no-heading>
       <div class="home header--left">
         <GlassCard class="glass-nav" no-back-shape tint="background-main">
-          <!-- <LinkBase :to="isSigned ? '/home' : '/'">
+          <LinkBase :to="isSigned ? '/home' : '/'">
             <Icon
               name="logo"
               size="100%"
               fill="primary"
               view-box="32 30"
             ></Icon>
-          </LinkBase> -->
+          </LinkBase>
         </GlassCard>
       </div>
 
