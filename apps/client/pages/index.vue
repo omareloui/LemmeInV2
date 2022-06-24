@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { createTRPCClient } from "@trpc/client";
+import { useAuthStore } from "store/useAuth";
 
-import type { AppRouter } from "~~/@types";
+const authStore = useAuthStore();
 
-const client = createTRPCClient<AppRouter>({ url: "http://localhost:2022" });
+definePageMeta({ layout: "no-floating-menu" });
 
-const helloResponse = await client.query("hello", { name: "omar" });
+defineNuxtRouteMiddleware(() => {
+  const router = useRouter();
+  if (authStore.isSigned) router.push("/home");
+});
 </script>
 
 <template>
-  <div>
-    <h1>hi!</h1>
-    <p>Response {{ helloResponse }}</p>
-  </div>
+  <Container tag="main">
+    <template #heading>Lemme in</template>
+  </Container>
 </template>

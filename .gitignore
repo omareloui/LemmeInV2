@@ -37,3 +37,4 @@ logs/
 
 # vscode
 .vscode
+*.code-workspace

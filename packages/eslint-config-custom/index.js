@@ -4,9 +4,12 @@ module.exports = {
   rules: {
     "import/prefer-default-export": "off",
     "import/prefer-default-export": "off",
-    quotes: ["error", "double"],
-    semi: ["error", "always"],
-    "comma-dangle": ["error", "always-multiline"],
-    curly: ["error", "multi"],
+
+    "@typescript-eslint/no-unused-vars": "warn",
+
+    quotes: ["warn", "double"],
+    semi: ["warn", "always"],
+    "comma-dangle": ["warn", "always-multiline"],
+    curly: ["warn", "multi"],
   },
 };
