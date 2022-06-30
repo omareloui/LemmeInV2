@@ -12,6 +12,7 @@
     "lint:check": "eslint --print-config .eslintrc"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
     "@types/lodash": "^4.14.182",
     "@types/pbkdf2": "^3.1.0",
     "eslint-config-custom": "workspace:^0.0.0",

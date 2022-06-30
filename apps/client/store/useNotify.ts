@@ -1,11 +1,18 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
+import type { Optional } from "~~/@types";
+
 interface Notification {
   id: number;
   isShown: boolean;
   type: string;
   message: string;
   duration: number;
+}
+
+interface NotificationOptions {
+  message: string;
+  duration?: number;
 }
 
 export const state = () => ({
@@ -56,7 +63,10 @@ export const useNotifyStore = defineStore("notify", {
       message,
       duration,
       type,
-    }: Pick<Notification, "message" | "duration" | "type">) {
+    }: Optional<
+      Pick<Notification, "message" | "duration" | "type">,
+      "duration"
+    >) {
       const newNotification: Notification = {
         id: this.idCounter,
         isShown: false,
@@ -82,16 +92,16 @@ export const useNotifyStore = defineStore("notify", {
       setTimeout(() => this.pop(notificationId), this.transitionDuration);
     },
 
-    error({ message, duration }: Notification) {
+    error({ message, duration }: NotificationOptions) {
       this.notify({ message, duration, type: "error" });
     },
-    warn({ message, duration }: Notification) {
+    warn({ message, duration }: NotificationOptions) {
       this.notify({ message, duration, type: "warn" });
     },
-    info({ message, duration }: Notification) {
+    info({ message, duration }: NotificationOptions) {
       this.notify({ message, duration, type: "info" });
     },
-    success({ message, duration }: Notification) {
+    success({ message, duration }: NotificationOptions) {
       this.notify({ message, duration, type: "success" });
     },
   },

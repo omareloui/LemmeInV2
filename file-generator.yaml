@@ -1,3 +1,9 @@
 templates:
   pinia-store:
     dist: apps/client/store
+  nuxt-plugin:
+    dist: apps/client/plugins
+  nuxt-plugin-inject:
+    dist: apps/client/plugins
+  nuxt-plugin-type:
+    dist: apps/client/plugins
