@@ -1,3 +1,4 @@
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
   ignorePatterns: ["/**/node_modules"],
   extends: ["prettier"],
@@ -7,9 +8,9 @@ module.exports = {
 
     "@typescript-eslint/no-unused-vars": "warn",
 
-    quotes: ["warn", "double"],
-    semi: ["warn", "always"],
+    "quotes": ["warn", "double", { avoidEscape: true }],
+    "semi": ["warn", "always"],
     "comma-dangle": ["warn", "always-multiline"],
-    curly: ["warn", "multi"],
+    "curly": ["warn", "multi"],
   },
 };

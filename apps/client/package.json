@@ -12,6 +12,7 @@
     "lint:check": "eslint --print-config .eslintrc"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.182",
     "@types/pbkdf2": "^3.1.0",
     "eslint-config-custom": "workspace:^0.0.0",
     "nuxt": "3.0.0-rc.4",

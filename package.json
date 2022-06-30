@@ -22,7 +22,7 @@
     "format": "prettier --write \"{,!(node_modules|.nuxt|.output)/**/}*.{ts,tsx,md,json}\""
   },
   "devDependencies": {
-    "@omareloui/gf": "^1.1.0",
+    "@omareloui/gf": "^1.1.1",
     "prettier": "^2.7.1",
     "turbo": "latest"
   },

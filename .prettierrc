@@ -1,4 +1,6 @@
 {
   "arrowParens": "avoid",
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "jsxSingleQuote": false,
+  "quoteProps": "consistent"
 }

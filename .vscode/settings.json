@@ -1,14 +1,9 @@
 {
-  "eslint.workingDirectories": [
-    "apps/api/",
-    "apps/client/"
-  ],
+  "eslint.workingDirectories": ["apps/api/", "apps/client/"],
   "deno.enable": true,
   "deno.lint": true,
   "deno.unstable": true,
-  "deno.enablePaths": [
-    "apps/api/"
-  ],
+  "deno.enablePaths": ["apps/api/"],
   "deno.suggest.imports.hosts": {
     "https://deno.land": true
   }

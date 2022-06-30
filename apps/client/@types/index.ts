@@ -1,3 +1,5 @@
+export * from "./Utilities";
+
 export * from "./HTMLInputEvent";
 
 export * from "./Icon";
