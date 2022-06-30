@@ -1,0 +1,3 @@
+templates:
+  pinia-store:
+    dist: apps/client/store
