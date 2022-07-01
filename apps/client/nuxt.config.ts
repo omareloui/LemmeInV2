@@ -1,6 +1,9 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { defineNuxtConfig } from "nuxt";
 import { fileURLToPath } from "node:url";
+import { readdirSync } from "fs";
+
+const components = readdirSync("./components").filter(c => c !== "Icon");
 
 export default defineNuxtConfig({
   typescript: {
@@ -14,18 +17,11 @@ export default defineNuxtConfig({
 
   components: {
     dirs: [
-      ...[
-        "Button",
-        "Confirm",
-        "Container",
-        "Dialogue",
-        "FloatingMenu",
-        "Glass",
-        "LayoutsWrapper",
-        "Link",
-        "Notify",
-        "TheNavbar",
-      ].map(c => ({ path: `~~/components/${c}`, prefix: c, global: false })),
+      ...components.map(c => ({
+        path: `~~/components/${c}`,
+        prefix: c,
+        global: false,
+      })),
 
       { path: "~~/components/Icon", global: true, prefix: "Icon" },
     ],

@@ -6,4 +6,4 @@ templates:
   nuxt-plugin-inject:
     dist: apps/client/plugins
   nuxt-plugin-type:
-    dist: apps/client/plugins
+    dist: apps/client/@types
