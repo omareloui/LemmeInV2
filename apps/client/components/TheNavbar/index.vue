@@ -181,8 +181,8 @@ onBeforeUnmount(removeEvents);
         <nav v-if="!isSigned" class="auth header--right">
           <GlassCard no-back-shape tint="background-main">
             <div class="glass-nav">
-              <!-- <LinkBase to="/signin">Sign in</LinkBase>
-              <LinkBase class="cta" to="/sign-up" is-cta>Sign up</LinkBase> -->
+              <LinkBase to="/signin">Sign in</LinkBase>
+              <LinkBase class="cta" to="/sign-up" is-cta>Sign up</LinkBase>
             </div>
           </GlassCard>
         </nav>

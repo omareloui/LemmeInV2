@@ -52,6 +52,15 @@ const props = withDefaults(
   },
 );
 
+const emit = defineEmits<{
+  (e: "click"): void;
+  (e: "dblclick"): void;
+  (e: "keyup:space"): void;
+  (e: "keyup:enter"): void;
+  (e: "mouseenter"): void;
+  (e: "mouseleave"): void;
+}>();
+
 const backC = computed(() => {
   const color = props.backShapeColor || props.tint;
   if (props.noBackShape) return undefined;
@@ -92,12 +101,12 @@ const classes = computed(() => {
     :contenteditable="editable ? true : undefined"
     :tabindex="focusable ? 0 : undefined"
     v-bind="{ role, aria }"
-    @click="$emit('click')"
-    @dblclick="$emit('dblclick')"
-    @keyup.space="$emit('keyup:space')"
-    @keyup.enter="$emit('keyup:enter')"
-    @mouseenter="$emit('mouseenter')"
-    @mouseleave="$emit('mouseleave')"
+    @click="emit('click')"
+    @dblclick="emit('dblclick')"
+    @keyup.space="emit('keyup:space')"
+    @keyup.enter="emit('keyup:enter')"
+    @mouseenter="emit('mouseenter')"
+    @mouseleave="emit('mouseleave')"
   >
     <slot></slot>
   </Component>
