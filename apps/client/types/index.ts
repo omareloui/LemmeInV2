@@ -4,6 +4,9 @@ export * from "./HTMLInputEvent";
 
 export * from "./Icon";
 
+export * from "./Auth";
+export * from "./Theme";
+
 export * from "./Account";
 export * from "./Analyze";
 export * from "./Tag";

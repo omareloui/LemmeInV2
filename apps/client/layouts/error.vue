@@ -13,10 +13,8 @@ defineProps<AxiosError>();
 </script>
 
 <template>
-  <LayoutsWrapper>
-    <Container class="error">
-      <template #heading>{{ status }} {{ type }}</template>
-      <p class="error__message">{{ message }}</p>
-    </Container>
-  </LayoutsWrapper>
+  <Container class="error">
+    <template #heading>{{ status }} {{ type }}</template>
+    <p class="error__message">{{ message }}</p>
+  </Container>
 </template>

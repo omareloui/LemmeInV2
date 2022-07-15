@@ -1,21 +1,58 @@
 import Cookie from "cookie-universal";
 import { defineStore, acceptHMRUpdate } from "pinia";
 
-type ThemeOption = "light" | "dark" | "default";
+import { ThemeOption } from "~~/types";
+
+const THEME_COOKIE_NAME = "theme";
 
 export const useThemeStore = defineStore("theme", {
   state: () => ({
-    THEME_COOKIE_NAME: "theme",
-    currentTheme: "light" as ThemeOption,
+    currentTheme: "default" as ThemeOption,
   }),
 
+  getters: {
+    htmlAttr: state => (state.currentTheme === "dark" ? "dark" : false),
+  },
+
   actions: {
-    setThemeState(value: ThemeOption) {
-      this.currentTheme = value;
+    load() {
+      const cookie = this.getThemeFromCookie() as ThemeOption;
+      this.changeTheme(cookie);
     },
 
-    load() {
-      this.loadSetTheme();
+    changeTheme(theme: ThemeOption) {
+      this.currentTheme = theme;
+      this.setThemeToCookie(theme);
+      this.updateHtmlAttrs();
+    },
+
+    toggleTheme() {
+      this.changeTheme(this.currentTheme === "dark" ? "light" : "dark");
+    },
+
+    updateHtmlAttrs() {
+      useHead({
+        htmlAttrs: {
+          theme: this.htmlAttr,
+        },
+      });
+    },
+
+    setThemeToCookie(theme: ThemeOption) {
+      const cookies = Cookie();
+      cookies.set(THEME_COOKIE_NAME, theme, {
+        path: "/",
+        sameSite: "lax",
+        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
+    },
+
+    getThemeFromCookie() {
+      const cookies = Cookie();
+      const cookie =
+        useCookie(THEME_COOKIE_NAME).value || cookies.get(THEME_COOKIE_NAME);
+      if (!cookie) this.setThemeToCookie("default");
+      return cookie as ThemeOption;
     },
 
     loadMediaQuery() {
@@ -23,39 +60,9 @@ export const useThemeStore = defineStore("theme", {
       this.listenForDefaultChange();
     },
 
-    toggleTheme() {
-      const neededTheme = this.currentTheme === "dark" ? "light" : "dark";
-      this.changeTheme(neededTheme);
-    },
-
-    changeTheme(theme: ThemeOption) {
-      this.setThemeState(theme);
-      this.setThemeToCookie(theme);
-    },
-
-    async loadSetTheme() {
-      const cookie = await this.getThemeFromCookie();
-      this.changeTheme(cookie);
-    },
-
-    setThemeToCookie(theme: ThemeOption) {
-      const cookies = Cookie();
-      cookies.set(this.THEME_COOKIE_NAME, theme, {
-        sameSite: "lax",
-        path: "/",
-      });
-    },
-
-    getThemeFromCookie() {
-      const cookies = Cookie();
-      let theme = cookies.get(this.THEME_COOKIE_NAME);
-      if (!theme) theme = "default";
-      return theme;
-    },
-
-    async setFromMediaQueryIfNeeded() {
+    setFromMediaQueryIfNeeded() {
       if (this.currentTheme === "default") {
-        const theme = await this.getThemeFromMediaQuery();
+        const theme = this.getThemeFromMediaQuery();
         this.changeTheme(theme);
       }
     },

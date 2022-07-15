@@ -1,9 +1,9 @@
 <template>
-  <LayoutsWrapper>
+  <div>
     <TheNavbar />
     <slot></slot>
     <Notify />
     <FloatingMenu />
     <Confirm />
-  </LayoutsWrapper>
+  </div>
 </template>

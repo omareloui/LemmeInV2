@@ -1,8 +1,8 @@
 <template>
-  <LayoutsWrapper>
+  <div>
     <TheNavbar />
     <slot></slot>
     <Notify />
     <Confirm />
-  </LayoutsWrapper>
+  </div>
 </template>
