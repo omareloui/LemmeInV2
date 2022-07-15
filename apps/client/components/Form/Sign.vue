@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useAuthStore } from "store/useAuth";
-import type { FormField } from "~~/@types";
 
 const authStore = useAuthStore();
 const route = useRoute();
@@ -8,35 +7,47 @@ const route = useRoute();
 const isSigninPage = route.fullPath === "/signin";
 
 const signinFields = [
-  { id: "email", type: "email", value: "" },
-  { id: "password", type: "password", value: "" },
-] as FormField[];
+  { id: "email", fieldType: "Email" as const, props: { modelValue: "" } },
+  // { id: "password", fieldType: "Password" as const, props:{modelValue: ""} },
+];
 
 const registerFields = [
   {
     id: "firstName",
-    type: "text",
-    label: "First Name",
-    value: "",
-    style: "half",
+    fieldType: "Base" as const,
+    props: {
+      label: "First Name",
+      modelValue: "",
+    },
+    display: {
+      isHalfColumn: true,
+    },
   },
   {
     id: "lastName",
-    type: "text",
-    label: "Last Name",
-    value: "",
-    style: "half",
+    fieldType: "Base" as const,
+    props: {
+      label: "Last Name",
+      modelValue: "",
+    },
+    display: {
+      isHalfColumn: true,
+    },
   },
-] as FormField[];
+];
+
+const formFields = reactive(
+  isSigninPage ? signinFields : [...registerFields, ...signinFields],
+);
+
+function onSubmit(values: unknown) {
+  console.log(values);
+  // isSigninPage ? authStore.signin(values) : authStore.register(values)
+}
 </script>
 
 <template>
   <Container no-heading custom-max-width="600px">
-    <FormGenerator
-      :form-fields="
-        isSigninPage ? signinFields : registerFields.concat(signinFields)
-      "
-      :submit-function="isSigninPage ? authStore.signin : authStore.register"
-    />
+    <FormGenerator :form-fields="formFields" :submit-function="onSubmit" />
   </Container>
 </template>

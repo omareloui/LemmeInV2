@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { readdirSync } from "fs";
 
 const components = readdirSync("./components");
-const globalComponents = ["Icon"];
+const globalComponents = ["Icon", "Input"];
 
 export default defineNuxtConfig({
   typescript: {

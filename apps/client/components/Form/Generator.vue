@@ -1,92 +1,116 @@
 <script setup lang="ts">
-import {
-  FormField,
-  FormValues,
-  PasswordValue,
-  FormStructure,
-  ExpandableFields,
-  FormGap,
-  // InputText,
-  // InputPassword,
-} from "~~/@types";
+import InputBase from "../Input/Base.vue";
+import InputEmail from "../Input/Email.vue";
+// import InputCheck from "../Input/Check.vue";
 
-const GAP: FormGap = "gap";
+type TInputBase = InstanceType<typeof InputBase>;
+type TInputEmail = InstanceType<typeof InputEmail>;
+// type TInputCheck = InstanceType<typeof InputCheck>;
 
-// type InputComponent = InputText | InputPassword;
+type TInput = TInputBase | TInputEmail; // | TInputCheck
+type TInputProps = TInput["$props"];
 
-type FieldOrGap = FormField | FormGap;
-type SubmitFunction = (values: FormValues) => void;
+type FieldType = "Base" | "Email";
+
+type Field = {
+  id: string;
+  fieldType: FieldType;
+  props: TInputProps;
+  display?: {
+    isHalfColumn?: boolean;
+  };
+};
+
+type Gap = "gap";
+
+type FieldOrGap = Field | Gap;
+
+type ExpandableFields = {
+  expandableFields: FieldOrGap[];
+};
+
+type Option = Field | Gap | ExpandableFields;
+
+type Structure = Option[];
+
+const GAP: Gap = "gap";
+
+type PasswordValue = { value: string; isNative: boolean } | string;
+type AcceptableValues =
+  | string
+  | string[]
+  | File[]
+  | PasswordValue
+  | { id: string; [key: string]: string | number | boolean }[];
+
+type Values = {
+  [fieldId: string]: AcceptableValues;
+};
+
+type SubmitFunction = (values: Values) => void | Promise<void>;
 
 const props = withDefaults(
   defineProps<{
-    formFields: FormStructure;
-    submitButtonText?: string;
+    formFields: Structure;
     submitFunction: SubmitFunction;
-    gridLayout: string;
+    submitButtonText?: string;
     danger?: boolean;
   }>(),
   { submitButtonText: "Submit", danger: false },
 );
 
+const refComponents = ref<TInput[] | null>(null);
 const isLoading = ref(false);
 const isExpandableShown = ref(false);
 
-function removeGap<T extends FormField | ExpandableFields>(
-  fields: FormStructure,
-): T[] {
-  return fields.filter(x => x !== GAP) as T[];
+function removeGap<T extends Structure | FieldOrGap[]>(
+  fields: T,
+): Omit<T, Gap> {
+  return fields.filter(x => x !== GAP) as Omit<T, Gap>;
 }
 
-function getInputComponent(x: FormField) {
-  // return ($refs[x.id])[0]  as InputComponent
-  return false;
-}
-
-const topLevelFields: FieldOrGap[] = (props.formFields as FieldOrGap[]).filter(
-  // @ts-ignore
-  x => !x.expandableFields,
-);
+const topLevelFields = props.formFields.filter(
+  x => x !== "gap" && !(x as ExpandableFields).expandableFields,
+) as FieldOrGap[];
 
 const expandableFields: FieldOrGap[] = props.formFields
-  // @ts-ignore
-  .filter(x => !!x.expandableFields)
+  .filter(x => x !== "gap" && !!(x as ExpandableFields).expandableFields)
   .reduce(
-    // @ts-ignore
-    (acc, field) => [...acc, ...field.expandableFields],
+    (acc, field) => [...acc, ...(field as ExpandableFields).expandableFields],
     [] as FieldOrGap[],
   );
 
-const couldExpand = expandableFields.length > 0;
+// const couldExpand = expandableFields.length > 0;
 
-const fields: FormField[] = removeGap(topLevelFields.concat(expandableFields));
+const fields = removeGap(topLevelFields.concat(expandableFields)) as Field[];
 
-function getValues(): FormValues {
-  const result: FormValues = {};
-  fields.forEach((x: FormField) => {
-    // Handle password value if the types is password
-    if (x.type === "password") {
-      const passwordComponent = getInputComponent(x) as any;
-      if (passwordComponent.hasOAuth) {
-        const passwordResult: PasswordValue = {
-          value: x.value as string,
-          isNative: passwordComponent.isNative,
-        };
-        result[x.id] = passwordResult;
-      } else result[x.id] = x.value;
-    }
-    // Handle the rest of the fields
-    else result[x.id] = x.value;
+function getValues(): Values {
+  const result: Values = {};
+  fields.forEach(x => {
+    // TODO:
+    // if (x.type === "password") {
+    //   const passwordComponent = getInputComponent(x) as any;
+    //   if (passwordComponent.hasOAuth) {
+    //     const passwordResult: PasswordValue = {
+    //       value: x.value as string,
+    //       isNative: passwordComponent.isNative,
+    //     };
+    //     result[x.id] = passwordResult;
+    //   } else result[x.id] = x.value;
+    // }
+    // else
+    result[x.id] = x.props.modelValue;
   });
   return result;
 }
 
-const values = getValues();
-
-const fieldsToGet: FormField[] = isExpandableShown.value
+const fieldsToGet: Field[] = isExpandableShown.value
   ? fields
-  : removeGap(topLevelFields);
+  : (removeGap(topLevelFields) as Field[]);
 
-const components = fieldsToGet.map(getInputComponent);
+function getInputComponent(x: Field): TInput {
+  return document.getElementById(x.id) as unknown as TInput;
+}
 
 function startLoading() {
   isLoading.value = true;
@@ -97,13 +121,14 @@ function endLoading() {
 }
 
 function validate() {
-  const validateInput = (inputComponent: any) => inputComponent.validate();
-  components.forEach(validateInput);
+  const comps = refComponents.value!;
+  comps.forEach(x => x.validate());
 }
 
 function checkIfComponentsHaveError() {
-  for (let i = 0; i < components.length; i += 1) {
-    const inputComponent = components[i] as any;
+  const comps = refComponents.value!;
+  for (let i = 0; i < comps.length; i += 1) {
+    const inputComponent = comps[i];
     if (inputComponent.errorMessage) return true;
   }
   return false;
@@ -113,12 +138,11 @@ async function onSubmit() {
   const { $notify } = useNuxtApp();
   try {
     startLoading();
-    // Validation
     validate();
     await nextTick();
     const hasError = checkIfComponentsHaveError();
     if (hasError) return;
-    await props.submitFunction(values);
+    props.submitFunction(getValues());
   } catch (err) {
     const e = err as any;
     if (e.response) $notify.error(e.response.data.message);
@@ -145,22 +169,21 @@ async function onSubmit() {
         :class="{
           'form-field--gap': field === 'gap',
           'form-field--input': field !== 'gap',
-          'form-field--half': field !== 'gap' && field.style === 'half',
+          'form-field--half': field !== 'gap' && field.display?.isHalfColumn,
         }"
       >
-        <component
-          :is="`input-${field.type}`"
+        <Component
+          :is="`Input${field.fieldType}`"
           v-if="field !== 'gap'"
-          :ref="field.id"
-          v-model="field.value"
-          :identifier="field.id"
-          :label="field.label"
+          ref="refComponents"
           v-bind="{ ...field.props }"
-        ></component>
+          v-model="field.props.modelValue"
+          :identifier="field.id"
+        ></Component>
       </div>
     </div>
 
-    <ButtonBase
+    <!-- <ButtonBase
       v-if="couldExpand && !isExpandableShown"
       class="expand-button"
       @click="isExpandableShown = true"
@@ -181,18 +204,18 @@ async function onSubmit() {
             'form-field--half': field !== 'gap' && field.style === 'half',
           }"
         >
-          <component
+          <Component
             :is="`input-${field.type}`"
             v-if="field !== 'gap'"
-            :ref="field.id"
+            ref="refComponents"
             v-model="field.value"
             :identifier="field.id"
             :label="field.label"
             v-bind="{ ...field.props }"
-          ></component>
+          ></Component>
         </div>
       </div>
-    </Transition>
+    </Transition> -->
 
     <InputSubmit v-bind="{ isLoading }" class="submit" @enter="onSubmit">
       {{ submitButtonText }}

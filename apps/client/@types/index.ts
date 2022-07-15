@@ -10,7 +10,6 @@ export * from "./Tag";
 export * from "./Note";
 export * from "./Resources";
 
-export * from "./FormField";
 export * from "./InputCheckOption";
 export * from "./InputRadioOption";
 export * from "./InputSelectOption";
