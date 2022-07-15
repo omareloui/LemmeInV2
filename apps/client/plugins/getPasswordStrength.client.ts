@@ -2,7 +2,7 @@ import {
   PasswordScore,
   PasswordStrengthValues,
   PasswordStrengthColors,
-} from "~~/@types";
+} from "~~/types";
 
 function calculateScore(password: string): PasswordScore {
   let score = 0;

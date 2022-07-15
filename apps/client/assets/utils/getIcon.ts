@@ -1,4 +1,4 @@
-import { Account, Icon } from "~~/@types";
+import { Account, Icon } from "~~/types";
 import icons, { NO_ICON } from "~~/config/icons";
 
 export default function getIcon(account: Account): Icon {

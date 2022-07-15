@@ -6,7 +6,7 @@ import {
   BuildAnalyzesOptions,
   DuplicatedPasswords,
   PasswordStrengthValues,
-} from "~~/@types";
+} from "~~/types";
 import getDatePrevMonths from "~~/assets/utils/getDatePrevMonths";
 
 export const useAnalyzeStore = defineStore("analyze", {

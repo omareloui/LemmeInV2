@@ -2,7 +2,7 @@ import { defineStore, acceptHMRUpdate } from "pinia";
 
 import { take } from "lodash";
 
-import { AddAccount, Account, UpdateAccount, Optional } from "~~/@types";
+import { AddAccount, Account, UpdateAccount, Optional } from "~~/types";
 
 export const useVaultStore = defineStore("vault", {
   state: () => ({

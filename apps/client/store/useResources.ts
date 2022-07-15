@@ -1,6 +1,6 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
-import type { Resources } from "~~/@types";
+import type { Resources } from "~~/types";
 
 export const useResourcesStore = defineStore("resources", {
   state: () => ({}),

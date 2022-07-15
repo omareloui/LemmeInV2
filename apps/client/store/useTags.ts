@@ -1,6 +1,6 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
-import type { Tag, AddTag, UpdateTag, Optional } from "~~/@types";
+import type { Tag, AddTag, UpdateTag, Optional } from "~~/types";
 
 import getRandomColor from "~~/assets/utils/getRandomTagColor";
 

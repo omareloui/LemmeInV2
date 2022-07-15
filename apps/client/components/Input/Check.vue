@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InputCheckOption } from "~/@types";
+import type { InputCheckOption } from "~~/types";
 
 const { $notify } = useNuxtApp();
 

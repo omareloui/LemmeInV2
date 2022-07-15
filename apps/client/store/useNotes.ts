@@ -1,6 +1,6 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
-import type { Note, AddNote, UpdateNote, Optional } from "~~/@types";
+import type { Note, AddNote, UpdateNote, Optional } from "~~/types";
 
 export const useNotesStore = defineStore("notes", {
   state: () => ({

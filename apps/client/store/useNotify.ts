@@ -1,6 +1,6 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
-import type { Optional } from "~~/@types";
+import type { Optional } from "~~/types";
 
 interface Notification {
   id: number;

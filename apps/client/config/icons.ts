@@ -1,4 +1,4 @@
-import { Icon } from "~/@types";
+import { Icon } from "~~/types";
 
 export const NO_ICON = "no-icon";
 
