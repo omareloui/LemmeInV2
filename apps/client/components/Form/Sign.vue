@@ -8,7 +8,7 @@ const isSigninPage = route.fullPath === "/signin";
 
 const signinFields = [
   { id: "email", fieldType: "Email" as const, props: { modelValue: "" } },
-  // { id: "password", fieldType: "Password" as const, props:{modelValue: ""} },
+  { id: "password", fieldType: "Password" as const, props: { modelValue: "" } },
 ];
 
 const registerFields = [

@@ -55,6 +55,8 @@ const emit = defineEmits<{
 
 const content = useModelWrapper(props, emit);
 
+const inputBaseRef = ref<HTMLInputElement | null>(null);
+
 const isFocus = ref(false);
 const errorMessage = ref(null as null | string);
 
@@ -70,7 +72,7 @@ const placeholderValue = computed(() => {
 });
 
 function focus() {
-  document.getElementById(props.identifier)?.focus();
+  inputBaseRef.value?.focus();
 }
 
 function handleIconClick(side: "right" | "left") {
@@ -160,6 +162,7 @@ defineExpose({
       <div>
         <input
           :id="identifier"
+          ref="inputBaseRef"
           v-model="content"
           class="input"
           :type="type"

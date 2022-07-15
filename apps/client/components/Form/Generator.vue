@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import InputBase from "../Input/Base.vue";
 import InputEmail from "../Input/Email.vue";
+import InputPassword from "../Input/Password.vue";
 // import InputCheck from "../Input/Check.vue";
 
 type TInputBase = InstanceType<typeof InputBase>;
 type TInputEmail = InstanceType<typeof InputEmail>;
+type TInputPassword = InstanceType<typeof InputPassword>;
 // type TInputCheck = InstanceType<typeof InputCheck>;
 
-type TInput = TInputBase | TInputEmail; // | TInputCheck
+type TInput = TInputBase | TInputEmail | TInputPassword; // | TInputCheck
 type TInputProps = TInput["$props"];
 
-type FieldType = "Base" | "Email";
+type FieldType = "Base" | "Email" | "Password";
 
 type Field = {
   id: string;
@@ -102,14 +104,6 @@ function getValues(): Values {
     result[x.id] = x.props.modelValue;
   });
   return result;
-}
-
-const fieldsToGet: Field[] = isExpandableShown.value
-  ? fields
-  : (removeGap(topLevelFields) as Field[]);
-
-function getInputComponent(x: Field): TInput {
-  return document.getElementById(x.id) as unknown as TInput;
 }
 
 function startLoading() {
