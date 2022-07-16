@@ -1,36 +1,15 @@
 import Cookie from "cookie-universal";
 import { defineStore, acceptHMRUpdate } from "pinia";
 
+import type {
+  RegisterOptions,
+  UpdateMeOptions,
+  SignInOptions,
+  User,
+  Token,
+} from "~~/types";
+
 import createKey from "~~/assets/utils/createPBKDF2";
-
-interface RegisterOptions {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}
-
-interface UpdateMeOptions extends Partial<RegisterOptions> {
-  oldPassword?: string;
-}
-
-interface SignInOptions {
-  email: string;
-  password: string;
-}
-
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-}
-
-interface Token {
-  token: string;
-  expires: Date;
-}
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -58,7 +37,10 @@ export const useAuthStore = defineStore("auth", {
 
     getToken() {
       const cookies = Cookie();
-      return cookies.get(this.AUTH_COOKIE_NAME);
+      const cookie =
+        useCookie(this.AUTH_COOKIE_NAME).value ||
+        cookies.get(this.AUTH_COOKIE_NAME);
+      return cookie;
     },
 
     getKeyFromCookie() {
@@ -109,30 +91,36 @@ export const useAuthStore = defineStore("auth", {
     },
 
     async register(options: RegisterOptions) {
-      const { data } = await this.$axios.post("/auth/register", options);
-      const result = data as { user: User; token: Token };
+      const { $fetchServer } = useNuxtApp();
+      const result = (await $fetchServer.post("/auth/register", options)) as {
+        user: User;
+        token: Token;
+      };
       const router = useRouter();
 
       await this.setSignData(result);
-      await this.createKey({
-        password: options.password,
-        expires: new Date(result.token.expires),
-      });
+      // await this.createKey({
+      //   password: options.password,
+      //   expires: new Date(result.token.expires),
+      // });
       router.push("/");
     },
 
     async signin(options: SignInOptions) {
+      const { $fetchServer } = useNuxtApp();
       const router = useRouter();
-      const { data } = await this.$axios.post("/auth/login", options);
-      const result = data as { user: User; token: Token };
+      const result = (await $fetchServer.post("/auth/login", options)) as {
+        user: User;
+        token: Token;
+      };
       await this.setSignData(result);
-      await this.createKey({
-        password: options.password,
-        expires: new Date(result.token.expires),
-      });
-      router.push("/");
-      await this.app.$accessor.resources.load();
-      router.push("/");
+      // await this.createKey({
+      //   password: options.password,
+      //   expires: new Date(result.token.expires),
+      // });
+      router.push("/home");
+      // await this.app.$accessor.resources.load();
+      // router.push("/");
     },
 
     async updateMe({
@@ -142,6 +130,7 @@ export const useAuthStore = defineStore("auth", {
       lastName,
       password,
     }: UpdateMeOptions) {
+      const { $notify, $fetchServer } = useNuxtApp();
       const router = useRouter();
       const options: UpdateMeOptions = {};
       if (firstName) options.firstName = firstName;
@@ -151,16 +140,26 @@ export const useAuthStore = defineStore("auth", {
         options.password = password;
         options.oldPassword = oldPassword;
       }
-      const { data: result } = await this.$axios.put("/me", options);
+      const result = (await $fetchServer.put("/me", options)) as {
+        user: User;
+        token: Token;
+      };
       this.setSignData(result);
-      this.$notify.success("Update profile");
+      $notify.success("Update profile");
       router.push("/");
     },
 
     async setMe() {
-      if (!(await this.getToken())) return;
+      const token = await this.getToken();
+      if (!token) return;
       try {
-        const { data: me } = await this.$axios.get("/me");
+        // FIXME:
+        // const { $fetchServer } = useNuxtApp();
+        // const { $fetchServer } = this.$nuxt;
+        // const me = (await $fetchServer.get("/me")) as User;
+        const me = (await $fetch("http://localhost:8000/me", {
+          headers: { authorization: `Bearer ${token}` },
+        })) as User;
         this.setUser(me);
         this.updateIsSigned(true);
       } catch (e) {
@@ -179,9 +178,10 @@ export const useAuthStore = defineStore("auth", {
       this.setKey(key);
     },
 
-    async signOut() {
+    signOut() {
       this.removeToken();
-      await this.app.$accessor.resources.clear();
+      // TODO:
+      // await this.app.$accessor.resources.clear();
       this.setUser(null);
       this.updateIsSigned(false);
       this.removeKeyCookie();

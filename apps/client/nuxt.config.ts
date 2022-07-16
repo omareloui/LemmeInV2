@@ -11,6 +11,12 @@ export default defineNuxtConfig({
     shim: false,
   },
 
+  runtimeConfig: {
+    public: {
+      apiUrl: "http://localhost:8000",
+    },
+  },
+
   alias: {
     store: fileURLToPath(new URL("./store", import.meta.url)),
     utils: fileURLToPath(new URL("./assets/utils", import.meta.url)),

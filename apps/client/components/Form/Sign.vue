@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from "store/useAuth";
+import type { SignInOptions, RegisterOptions } from "~~/types";
 
 const authStore = useAuthStore();
 const route = useRoute();
@@ -41,8 +42,8 @@ const formFields = reactive(
 );
 
 function onSubmit(values: unknown) {
-  console.log(values);
-  // isSigninPage ? authStore.signin(values) : authStore.register(values)
+  if (isSigninPage) authStore.signin(values as SignInOptions);
+  else authStore.register(values as RegisterOptions);
 }
 </script>
 

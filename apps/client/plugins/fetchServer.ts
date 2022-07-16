@@ -8,10 +8,11 @@ function fetchServer(
 ): ReturnType<typeof $fetch> {
   const authStore = useAuthStore();
   const cookies = Cookie();
+  const config = useRuntimeConfig();
 
   const token = cookies.get(authStore.AUTH_COOKIE_NAME);
 
-  return $fetch(`http://localhost:8000${params[0]}`, {
+  return $fetch(`${config.public.apiUrl}${params[0]}`, {
     ...params[1],
     headers: {
       ...params[1]?.headers,
