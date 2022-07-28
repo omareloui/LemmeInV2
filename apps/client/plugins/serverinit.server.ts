@@ -2,7 +2,7 @@ import { useAuthStore } from "~~/store/useAuth";
 // import { useResourcesStore } from "~~/store/useResources";
 
 export default defineNuxtPlugin(async () => {
-  // const route = useRoute();
+  const route = useRoute();
   const authStore = useAuthStore();
   // const resourcesStore = useResourcesStore();
 
@@ -10,5 +10,5 @@ export default defineNuxtPlugin(async () => {
   // await authStore.setKeyFromCookie();
   // await resourcesStore.load();
 
-  // if (route.fullPath === "/" && authStore.isSigned) navigateTo("/home");
+  if (route.fullPath === "/" && authStore.isSigned) navigateTo("/home");
 });

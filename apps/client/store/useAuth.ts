@@ -99,6 +99,7 @@ export const useAuthStore = defineStore("auth", {
       const router = useRouter();
 
       await this.setSignData(result);
+      // TODO:
       // await this.createKey({
       //   password: options.password,
       //   expires: new Date(result.token.expires),
@@ -114,12 +115,15 @@ export const useAuthStore = defineStore("auth", {
         token: Token;
       };
       await this.setSignData(result);
+      // TODO:
       // await this.createKey({
       //   password: options.password,
       //   expires: new Date(result.token.expires),
       // });
       router.push("/home");
+      // TODO:
       // await this.app.$accessor.resources.load();
+      // TODO:
       // router.push("/");
     },
 
@@ -165,7 +169,7 @@ export const useAuthStore = defineStore("auth", {
       } catch (e) {
         const router = useRouter();
         // @ts-ignore
-        if (!e.response || e.response.data.status === 401) {
+        if (!e.response || e.response.status === 401) {
           this.signOut();
           router.push("/");
         }
