@@ -47,7 +47,7 @@ function onClick(event: "single" | "dbl") {
         @click="onClick('single')"
         @dblclick="onClick('dbl')"
       >
-        <!-- <Icon :name="icon" :view-box="iconViewBox" :size="iconSize"></Icon> -->
+        <Icon :name="icon" :view-box="iconViewBox" :size="iconSize"></Icon>
       </ButtonBase>
     </GlassCircle>
 

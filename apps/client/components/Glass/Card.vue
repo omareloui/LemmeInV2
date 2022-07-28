@@ -61,14 +61,14 @@ const emit = defineEmits<{
   (e: "mouseleave"): void;
 }>();
 
-const backC = computed(() => {
+function getBackC() {
   const color = props.backShapeColor || props.tint;
   if (props.noBackShape) return undefined;
   if (props.isBackShapeHexColor) return color;
   return `var(--clr-${color})`;
-});
+}
 
-const classes = computed(() => {
+function getClasses() {
   let classesRes = "";
   if (props.circle) classesRes += " glass--circle";
   if (props.float) classesRes += " glass--float";
@@ -76,14 +76,14 @@ const classes = computed(() => {
   if (!props.noBackShape)
     classesRes += ` glass--has-back-shape glass--back-shape--${props.backShape} glass--back-shape--${props.backShapePosition}`;
   return classesRes;
-});
+}
 </script>
 
 <template>
   <Component
     :is="tag"
     class="glass"
-    :class="classes"
+    :class="getClasses()"
     :style="{
       '--back-shape-height': !noBackShape
         ? backShapeHeight || backShapeSize
@@ -91,7 +91,7 @@ const classes = computed(() => {
       '--back-shape-width': !noBackShape
         ? backShapeWidth || backShapeSize
         : undefined,
-      '--back-shape-background': backC,
+      '--back-shape-background': getBackC(),
       '--background': `hsl(var(--clr-hs-${tint}) var(--clr-l-${tint}) / var(--clr-o-${
         opacity * 100
       }))`,

@@ -9,13 +9,12 @@ const authStore = useAuthStore();
 const isOptionsShown = ref(false);
 
 const currentTheme = computed(() => themeStore.currentTheme);
-const isSigned = computed(() => authStore.isSigned);
 
 const menu = reactive({
   options: [
     {
       button: {
-        icon: "vault",
+        icon: "Vault",
         description: "vault",
         iconViewBox: "32 25.6",
       },
@@ -23,14 +22,14 @@ const menu = reactive({
     },
     {
       button: {
-        icon: "note",
+        icon: "Note",
         description: "secure notes",
       },
       onClick: () => router.push("/notes"),
     },
     {
       button: {
-        icon: "tags",
+        icon: "Tags",
         description: "tags",
         iconViewBox: "28.3 32",
       },
@@ -38,7 +37,7 @@ const menu = reactive({
     },
     {
       button: {
-        icon: "password-health",
+        icon: "PasswordHealth",
         description: "passwords health",
         iconViewBox: "31.1 32",
       },
@@ -46,7 +45,7 @@ const menu = reactive({
     },
     {
       button: {
-        icon: "dashboard",
+        icon: "Dashboard",
         description: "dashboard",
         iconViewBox: "32 26.7",
       },
@@ -55,7 +54,7 @@ const menu = reactive({
     },
     {
       button: {
-        icon: "settings",
+        icon: "Settings",
         description: "account settings",
         iconViewBox: "28.8 32",
       },
@@ -63,8 +62,7 @@ const menu = reactive({
     },
     {
       button: {
-        icon:
-          themeStore.currentTheme === "light" ? "dark-theme" : "light-theme",
+        icon: themeStore.currentTheme === "light" ? "DarkTheme" : "LightTheme",
         description: `${
           themeStore.currentTheme === "dark" ? "light" : "dark"
         } theme`,
@@ -73,7 +71,7 @@ const menu = reactive({
     },
     {
       button: {
-        icon: "logout",
+        icon: "Logout",
         description: "logout",
         iconViewBox: "25.6 32",
       },
@@ -139,7 +137,7 @@ onBeforeUnmount(removeEvents);
     <Container no-heading>
       <div class="home header--left">
         <GlassCard class="glass-nav" no-back-shape tint="background-main">
-          <LinkBase :to="isSigned ? '/home' : '/'">
+          <LinkBase :to="authStore.isSigned ? '/home' : '/'">
             <Icon
               name="logo"
               size="100%"
@@ -153,7 +151,7 @@ onBeforeUnmount(removeEvents);
       <span class="gap"></span>
 
       <Transition name="fade">
-        <div v-if="isSigned" class="menu header--right">
+        <div v-if="authStore.isSigned" class="menu header--right">
           <ButtonGlass
             class="menu__button"
             icon="nav-menu"
@@ -178,7 +176,7 @@ onBeforeUnmount(removeEvents);
       </Transition>
 
       <Transition name="fade">
-        <nav v-if="!isSigned" class="auth header--right">
+        <nav v-if="!authStore.isSigned" class="auth header--right">
           <GlassCard no-back-shape tint="background-main">
             <div class="glass-nav">
               <LinkBase to="/signin">Sign in</LinkBase>
