@@ -41,9 +41,9 @@ const formFields = reactive(
   isSigninPage ? signinFields : [...registerFields, ...signinFields],
 );
 
-function onSubmit(values: unknown) {
-  if (isSigninPage) authStore.signin(values as SignInOptions);
-  else authStore.register(values as RegisterOptions);
+async function onSubmit(values: unknown) {
+  if (isSigninPage) await authStore.signin(values as SignInOptions);
+  else await authStore.register(values as RegisterOptions);
 }
 </script>
 

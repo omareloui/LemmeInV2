@@ -139,7 +139,7 @@ onBeforeUnmount(removeEvents);
         <GlassCard class="glass-nav" no-back-shape tint="background-main">
           <LinkBase :to="authStore.isSigned ? '/home' : '/'">
             <Icon
-              name="logo"
+              name="Logo"
               size="100%"
               fill="primary"
               view-box="32 30"
@@ -154,7 +154,7 @@ onBeforeUnmount(removeEvents);
         <div v-if="authStore.isSigned" class="menu header--right">
           <ButtonGlass
             class="menu__button"
-            icon="nav-menu"
+            icon="NavMenu"
             icon-view-box="32 7.5"
             aria-label="nav menu"
             @click="toggleMenu"

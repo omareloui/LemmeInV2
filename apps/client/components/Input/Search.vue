@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import Fuse from "fuse.js";
-import { debounce } from "lodash";
+import _ from "lodash";
 
 import InputBase from "./Base.vue";
 
 const inputEl = ref<InstanceType<typeof InputBase> | null>(null);
 
-type SearchFunc = (
-  query: string,
-) => Array<string | number | Record<string, string>>;
+const { debounce } = _;
+
+type SearchFunc = (query: string) => unknown[];
 
 const props = withDefaults(
   defineProps<{
@@ -28,7 +28,7 @@ const props = withDefaults(
     searchFunction?: SearchFunc;
 
     searchKeys: string | string[];
-    searchElements: (string | number | Record<string, string>)[];
+    searchElements: unknown[];
 
     debouncingDuration?: number;
 

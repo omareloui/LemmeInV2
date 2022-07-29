@@ -136,11 +136,11 @@ async function onSubmit() {
     await nextTick();
     const hasError = checkIfComponentsHaveError();
     if (hasError) return;
-    props.submitFunction(getValues());
-  } catch (err) {
-    const e = err as any;
-    if (e.response) $notify.error(e.response.data.message);
-    else $notify.error(e.message);
+    await props.submitFunction(getValues());
+  } catch (e) {
+    const err = useErrorParsers(e);
+    if (err.name === "FetchError") $notify.error(err.response._data.message);
+    else $notify.error(err.message);
   } finally {
     endLoading();
   }

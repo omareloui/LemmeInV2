@@ -42,11 +42,11 @@ function onClick(event: "single" | "dbl") {
   >
     <Transition name="fade">
       <span v-if="isLoading" class="button-main__loader">
-        <!-- <LoaderPrimary
+        <LoaderPrimary
           :size="large ? 35 : 20"
           :stroke-width="large ? 3 : 2"
           :color="cta || !!color ? 'text-light' : 'primary'"
-        ></LoaderPrimary> -->
+        ></LoaderPrimary>
       </span>
     </Transition>
 
