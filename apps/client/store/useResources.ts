@@ -1,5 +1,8 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
+import { useAuthStore } from "~~/store/useAuth";
+import { useTagsStore } from "~~/store/useTags";
+
 import type { Resources } from "~~/types";
 
 export const useResourcesStore = defineStore("resources", {
@@ -8,24 +11,36 @@ export const useResourcesStore = defineStore("resources", {
   getters: {},
 
   actions: {
-    async load(): Promise<void> {
-      const { $accessor, $axios } = this.app;
-      if ($accessor.auth.isSigned) {
-        const response = await $axios.get("/resources");
-        const { accounts, notes, tags } = response.data as Resources;
+    async load() {
+      const authStore = useAuthStore();
+      const tagsStore = useTagsStore();
 
-        await $accessor.vault.decryptAndSetAccounts(accounts);
-        await $accessor.notes.decryptAndSetNotes(notes);
-        await $accessor.tags.setTags(tags);
-        await $accessor.analyze.init();
-      }
+      if (!authStore.isSigned) return;
+
+      // FIXME:
+      // const resources = (await useServerFetch("/resources")) as Resources;
+
+      const token = await authStore.getToken();
+      const { accounts, notes, tags } = (await $fetch(
+        "http://localhost:8000/resources",
+        {
+          headers: { authorization: `Bearer ${token}` },
+        },
+      )) as Resources;
+
+      // await vaultStore.decryptAndSetAccounts(accounts)
+      // await notesStore.decryptAndSetNotes(notes)
+      await tagsStore.setTags(tags);
+      // await analyzeStore.init()
     },
 
-    clear(): void {
-      this.app.$accessor.vault.clearAccounts();
-      this.app.$accessor.tags.clearTags();
-      this.app.$accessor.notes.clearNotes();
-      this.app.$accessor.analyze.clearData();
+    clear() {
+      const tagsStore = useTagsStore();
+
+      // vaultStore.clearAccounts()
+      // notesStore.clearNotes()
+      tagsStore.clearTags();
+      // analyzeStore.clearData()
     },
   },
 });

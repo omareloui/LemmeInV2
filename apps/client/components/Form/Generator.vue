@@ -3,18 +3,25 @@ import InputBase from "../Input/Base.vue";
 import InputEmail from "../Input/Email.vue";
 import InputPassword from "../Input/Password.vue";
 // import InputCheck from "../Input/Check.vue";
+import InputTagColor from "../Input/TagColor.vue";
 
-type TInputBase = InstanceType<typeof InputBase>;
-type TInputEmail = InstanceType<typeof InputEmail>;
-type TInputPassword = InstanceType<typeof InputPassword>;
-// type TInputCheck = InstanceType<typeof InputCheck>;
+export type TInputBase = InstanceType<typeof InputBase>;
+export type TInputEmail = InstanceType<typeof InputEmail>;
+export type TInputPassword = InstanceType<typeof InputPassword>;
+// export type TInputCheck = InstanceType<typeof InputCheck>;
+export type TInputTagColor = InstanceType<typeof InputTagColor>;
 
-type TInput = TInputBase | TInputEmail | TInputPassword; // | TInputCheck
-type TInputProps = TInput["$props"];
+export type TInput =
+  | TInputBase
+  | TInputEmail
+  | TInputPassword
+  // | TInputCheck
+  | TInputTagColor;
+export type TInputProps = TInput["$props"];
 
-type FieldType = "Base" | "Email" | "Password";
+export type FieldType = "Base" | "Email" | "Password" | "TagColor";
 
-type Field = {
+export type Field = {
   id: string;
   fieldType: FieldType;
   props: TInputProps;
@@ -23,31 +30,29 @@ type Field = {
   };
 };
 
-type Gap = "gap";
+export type Gap = "gap";
 
-type FieldOrGap = Field | Gap;
+export type FieldOrGap = Field | Gap;
 
-type ExpandableFields = {
+export type ExpandableFields = {
   expandableFields: FieldOrGap[];
 };
 
-type Option = Field | Gap | ExpandableFields;
+export type Option = Field | Gap | ExpandableFields;
 
-type Structure = Option[];
+export type Structure = Option[];
 
 const GAP: Gap = "gap";
 
 type PasswordValue = { value: string; isNative: boolean } | string;
-type AcceptableValues =
-  | string
-  | string[]
-  | File[]
-  | PasswordValue
-  | { id: string; [key: string]: string | number | boolean }[];
+type FieldValue = string | string[] | File[] | PasswordValue | Date;
 
-type Values = {
-  [fieldId: string]: AcceptableValues;
-};
+type AcceptableValues =
+  | FieldValue
+  | { [key: string]: FieldValue }
+  | { id: string; [key: string]: FieldValue }[];
+
+type Values = Record<string, AcceptableValues>;
 
 type SubmitFunction = (values: Values) => void | Promise<void>;
 
@@ -115,12 +120,13 @@ function endLoading() {
 }
 
 function validate() {
-  const comps = refComponents.value!;
-  comps.forEach(x => x.validate());
+  const comps = refComponents.value;
+  if (comps) comps.forEach(x => x.validate());
 }
 
 function checkIfComponentsHaveError() {
-  const comps = refComponents.value!;
+  const comps = refComponents.value;
+  if (!comps) return false;
   for (let i = 0; i < comps.length; i += 1) {
     const inputComponent = comps[i];
     if (inputComponent.errorMessage) return true;

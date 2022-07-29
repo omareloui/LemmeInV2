@@ -1,8 +1,10 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
-import type { Tag, AddTag, UpdateTag, Optional } from "~~/types";
-
 import getRandomColor from "~~/assets/utils/getRandomTagColor";
+// eslint-disable-next-line import/no-cycle
+import { useAuthStore } from "~~/store/useAuth";
+
+import type { Tag, AddTag, UpdateTag, Optional } from "~~/types";
 
 export const useTagsStore = defineStore("tags", {
   state: () => ({
@@ -33,55 +35,60 @@ export const useTagsStore = defineStore("tags", {
     },
 
     async getTags() {
-      if (!this.app.$accessor.auth.isSigned) return;
-      const { data: tags } = (await this.$axios.get("/tags")) as {
-        data: Tag[];
-      };
+      const authStore = useAuthStore();
+      if (!authStore.isSigned) return;
+      const tags = (await useServerFetch("/tags")) as Tag[];
       this.setTags(tags);
     },
 
     async addTag({ name, color }: AddTag) {
+      const { $notify } = useNuxtApp();
       try {
         let wantedColor = color;
         if (!wantedColor) wantedColor = getRandomColor();
-        const response = await this.$axios.post("/tags", {
-          name,
-          color: wantedColor,
-        });
-        const tag = response.data as Tag;
-        this.$notify.success("Created tag.");
-        this.unshiftToTags(tag);
-        return tag;
+        const response = (await useServerFetch("/tags", {
+          method: "POST",
+          body: {
+            name,
+            color: wantedColor,
+          },
+        })) as Tag;
+        $notify.success("Created tag.");
+        this.unshiftToTags(response);
+        return response;
       } catch (e) {
-        // @ts-ignore
-        this.$notify.error(e.response ? e.response.data.message : e.message);
+        const err = useErrorParsers(e);
+        if (err.name === "FetchError")
+          $notify.error(err.response._data.message);
         return false;
       }
     },
 
     async updateTag(options: UpdateTag) {
+      const { $notify } = useNuxtApp();
       try {
         const { id } = options;
         const optionsForRequest = options as Optional<UpdateTag, "id">;
         delete optionsForRequest.id;
-        const response = await this.$axios.put(
-          `/tags/${id}`,
-          optionsForRequest,
-        );
-        const newTag = response.data as Tag;
-        this.$notify.success("Updated tag.");
-        this.updateTagCache(newTag);
+        const response = (await useServerFetch(`/tags/${id}`, {
+          method: "PUT",
+          body: optionsForRequest,
+        })) as Tag;
+        $notify.success("Updated tag.");
+        this.updateTagCache(response);
         return true;
       } catch (e) {
-        // @ts-ignore
-        this.$notify.error(e.response ? e.response.data.message : e.message);
+        const err = useErrorParsers(e);
+        if (err.name === "FetchError")
+          $notify.error(err.response._data.message);
         return false;
       }
     },
 
     async deleteTag({ tagId, tagName }: { tagId: string; tagName: string }) {
+      const { $notify, $confirm } = useNuxtApp();
       try {
-        const confirmed = await this.$confirm(
+        const confirmed = await $confirm(
           `Are you sure you want to delete "${tagName}" tag?`,
           {
             description:
@@ -90,15 +97,20 @@ export const useTagsStore = defineStore("tags", {
           },
         );
         if (!confirmed) return false;
-        await this.$axios.delete(`/tags/${tagId}`);
+        await useServerFetch(`/tags/${tagId}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "text/plain" },
+        });
         this.removeTag(tagId);
-        this.app.$accessor.vault.removeTagFromAccounts(tagId);
-        this.app.$accessor.notes.removeTagFromNotes(tagId);
-        this.$notify.success("Removed tag.");
+        // TODO:
+        // this.app.$accessor.vault.removeTagFromAccounts(tagId);
+        // this.app.$accessor.notes.removeTagFromNotes(tagId);
+        $notify.success("Removed tag.");
         return true;
       } catch (e) {
-        // @ts-ignore
-        this.$notify.error(e.response ? e.response.data.message : e.message);
+        const err = useErrorParsers(e);
+        if (err.name === "FetchError")
+          $notify.error(err.response._data.message);
         return false;
       }
     },

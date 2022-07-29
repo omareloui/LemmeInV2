@@ -1,11 +1,15 @@
 import Cookie from "cookie-universal";
 import { defineStore, acceptHMRUpdate } from "pinia";
+
 import {
   useCookie,
   useRouter,
   useServerFetch,
   useErrorParsers,
 } from "#imports";
+
+// eslint-disable-next-line import/no-cycle
+import { useResourcesStore } from "~~/store/useResources";
 
 import generateKey from "~~/assets/utils/createPBKDF2";
 
@@ -129,10 +133,7 @@ export const useAuthStore = defineStore("auth", {
       //   expires: new Date(result.token.expires),
       // });
       router.push("/home");
-      // TODO:
-      // await this.app.$accessor.resources.load();
-      // TODO:
-      // router.push("/");
+      useResourcesStore().load();
     },
 
     async updateMe({
@@ -196,8 +197,7 @@ export const useAuthStore = defineStore("auth", {
 
     signOut() {
       this.removeToken();
-      // TODO:
-      // await this.app.$accessor.resources.clear();
+      useResourcesStore().clear();
       this.setUser(null);
       this.removeKeyCookie();
       this.setKey(null);

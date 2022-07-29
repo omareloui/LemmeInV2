@@ -6,6 +6,6 @@ const colors = [
   "maya-blue",
   "neon-green",
   "majorelle-blue",
-];
+] as const;
 
 export default colors;
