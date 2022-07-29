@@ -1,5 +1,13 @@
 import Cookie from "cookie-universal";
 import { defineStore, acceptHMRUpdate } from "pinia";
+import {
+  useCookie,
+  useRouter,
+  useServerFetch,
+  useErrorParsers,
+} from "#imports";
+
+import generateKey from "~~/assets/utils/createPBKDF2";
 
 import type {
   RegisterOptions,
@@ -9,26 +17,21 @@ import type {
   Token,
 } from "~~/types";
 
-import createKey from "~~/assets/utils/createPBKDF2";
-
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     AUTH_COOKIE_NAME: "auth",
     PBKDF2_COOKIE_NAME: "key",
     user: null as User | null,
-    isSigned: false,
     pbk: null as string | null,
   }),
 
-  getters: {},
+  getters: {
+    isSigned: state => !!state.user,
+  },
 
   actions: {
     setUser(user: User | null) {
       this.user = user;
-    },
-
-    updateIsSigned(isSigned: boolean) {
-      this.isSigned = isSigned;
     },
 
     setKey(key: string | null) {
@@ -86,13 +89,16 @@ export const useAuthStore = defineStore("auth", {
 
     setSignData({ user, token }: { user: User; token: Token }) {
       this.setToken(token);
-      this.updateIsSigned(true);
       this.setUser(user);
     },
 
     async register(options: RegisterOptions) {
-      const { $fetchServer } = useNuxtApp();
-      const result = (await $fetchServer.post("/auth/register", options)) as {
+      const result = (await useServerFetch("/auth/register", {
+        method: "POST",
+        body: {
+          options,
+        },
+      })) as {
         user: User;
         token: Token;
       };
@@ -108,9 +114,11 @@ export const useAuthStore = defineStore("auth", {
     },
 
     async signin(options: SignInOptions) {
-      const { $fetchServer } = useNuxtApp();
       const router = useRouter();
-      const result = (await $fetchServer.post("/auth/login", options)) as {
+      const result = (await useServerFetch("/auth/login", {
+        method: "POST",
+        body: options,
+      })) as {
         user: User;
         token: Token;
       };
@@ -134,7 +142,7 @@ export const useAuthStore = defineStore("auth", {
       lastName,
       password,
     }: UpdateMeOptions) {
-      const { $notify, $fetchServer } = useNuxtApp();
+      const { $notify } = useNuxtApp();
       const router = useRouter();
       const options: UpdateMeOptions = {};
       if (firstName) options.firstName = firstName;
@@ -144,7 +152,10 @@ export const useAuthStore = defineStore("auth", {
         options.password = password;
         options.oldPassword = oldPassword;
       }
-      const result = (await $fetchServer.put("/me", options)) as {
+      const result = (await useServerFetch("/me", {
+        method: "PUT",
+        body: options,
+      })) as {
         user: User;
         token: Token;
       };
@@ -158,20 +169,21 @@ export const useAuthStore = defineStore("auth", {
       if (!token) return;
       try {
         // FIXME:
-        // const { $fetchServer } = useNuxtApp();
-        // const { $fetchServer } = this.$nuxt;
-        // const me = (await $fetchServer.get("/me")) as User;
+        // const me = (await useServerFetch("/me")) as User;
         const me = (await $fetch("http://localhost:8000/me", {
           headers: { authorization: `Bearer ${token}` },
         })) as User;
+
         this.setUser(me);
-        this.updateIsSigned(true);
       } catch (e) {
-        const router = useRouter();
-        // @ts-ignore
-        if (!e.response || e.response.status === 401) {
+        const err = useErrorParsers(e);
+
+        // eslint-disable-next-line curly
+        if (err.name === "FetchError") {
+          // FIXME:
+          // const router = useRouter();
           this.signOut();
-          router.push("/");
+          // router.push("/");
         }
       }
     },
@@ -187,7 +199,6 @@ export const useAuthStore = defineStore("auth", {
       // TODO:
       // await this.app.$accessor.resources.clear();
       this.setUser(null);
-      this.updateIsSigned(false);
       this.removeKeyCookie();
       this.setKey(null);
     },
@@ -199,7 +210,7 @@ export const useAuthStore = defineStore("auth", {
       password: string;
       expires: Date;
     }) {
-      const key = await createKey(password);
+      const key = await generateKey(password);
       this.setKeyToCookie({ key, expires });
       this.setKey(key);
     },
