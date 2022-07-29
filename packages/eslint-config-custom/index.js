@@ -12,5 +12,6 @@ module.exports = {
     "semi": ["warn", "always"],
     "comma-dangle": ["warn", "always-multiline"],
     "curly": ["warn", "multi"],
+    "no-underscore-dangle": "off",
   },
 };
