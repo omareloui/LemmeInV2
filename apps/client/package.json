@@ -16,13 +16,13 @@
     "@types/lodash": "^4.14.182",
     "@types/pbkdf2": "^3.1.0",
     "eslint-config-custom": "workspace:^0.0.0",
-    "nuxt": "3.0.0-rc.4",
+    "nuxt": "3.0.0-rc.6",
     "sass": "^1.53.0",
     "sass-loader": "^13.0.0",
     "tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@pinia/nuxt": "^0.1.9",
+    "@pinia/nuxt": "^0.3.1",
     "cookie-universal": "^2.2.1",
     "crypto-js": "^4.1.1",
     "fuse.js": "^6.6.2",
@@ -30,7 +30,7 @@
     "lodash": "^4.17.21",
     "marked": "^4.0.17",
     "pbkdf2": "^3.1.2",
-    "pinia": "^2.0.14",
+    "pinia": "^2.0.17",
     "qrcode": "^1.5.0"
   }
 }
