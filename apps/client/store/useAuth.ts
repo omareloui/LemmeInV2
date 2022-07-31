@@ -11,8 +11,6 @@ import {
 // eslint-disable-next-line import/no-cycle
 import { useResourcesStore } from "~~/store/useResources";
 
-import generateKey from "~~/assets/utils/createPBKDF2";
-
 import type {
   RegisterOptions,
   UpdateMeOptions,
@@ -36,10 +34,6 @@ export const useAuthStore = defineStore("auth", {
   actions: {
     setUser(user: User | null) {
       this.user = user;
-    },
-
-    setKey(key: string | null) {
-      this.pbk = key;
     },
 
     getToken() {
@@ -109,11 +103,10 @@ export const useAuthStore = defineStore("auth", {
       const router = useRouter();
 
       await this.setSignData(result);
-      // TODO:
-      // await this.createKey({
-      //   password: options.password,
-      //   expires: new Date(result.token.expires),
-      // });
+      await this.createKey({
+        password: options.password,
+        expires: new Date(result.token.expires),
+      });
       router.push("/");
     },
 
@@ -127,11 +120,10 @@ export const useAuthStore = defineStore("auth", {
         token: Token;
       };
       await this.setSignData(result);
-      // TODO:
-      // await this.createKey({
-      //   password: options.password,
-      //   expires: new Date(result.token.expires),
-      // });
+      await this.createKey({
+        password: options.password,
+        expires: new Date(result.token.expires),
+      });
       router.push("/home");
       useResourcesStore().load();
     },
@@ -192,7 +184,7 @@ export const useAuthStore = defineStore("auth", {
     async setKeyFromCookie() {
       const key = await this.getKeyFromCookie();
       if (!key) return;
-      this.setKey(key);
+      this.pbk = key;
     },
 
     signOut() {
@@ -200,7 +192,7 @@ export const useAuthStore = defineStore("auth", {
       useResourcesStore().clear();
       this.setUser(null);
       this.removeKeyCookie();
-      this.setKey(null);
+      this.pbk = null;
     },
 
     async createKey({
@@ -210,9 +202,16 @@ export const useAuthStore = defineStore("auth", {
       password: string;
       expires: Date;
     }) {
-      const key = await generateKey(password);
-      this.setKeyToCookie({ key, expires });
-      this.setKey(key);
+      const { $notify } = useNuxtApp();
+      try {
+        const { $generatePbkdf2 } = useNuxtApp();
+        const key = await $generatePbkdf2(password);
+        this.setKeyToCookie({ key, expires });
+        this.pbk = key;
+      } catch (e) {
+        const err = useErrorParsers(e);
+        $notify.error(err.message);
+      }
     },
   },
 });

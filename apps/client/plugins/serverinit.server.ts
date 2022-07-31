@@ -7,7 +7,7 @@ export default defineNuxtPlugin(async () => {
   const resourcesStore = useResourcesStore();
 
   await authStore.setMe();
-  // await authStore.setKeyFromCookie();
+  await authStore.setKeyFromCookie();
   await resourcesStore.load();
 
   if (route.fullPath === "/" && authStore.isSigned) navigateTo("/home");

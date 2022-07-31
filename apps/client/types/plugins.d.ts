@@ -4,6 +4,8 @@ import { Copy } from "~~/plugins/copy.client";
 import { GetPasswordStrength } from "~~/plugins/getPasswordStrength.client";
 import { CypherHelper } from "~~/plugins/cypher.client";
 
+import { GeneratePbkdf2 } from "~~/plugins/generatePbkdf2";
+
 declare module "#app" {
   interface NuxtApp {
     $notify: Notify;
@@ -11,6 +13,7 @@ declare module "#app" {
     $confirm: Confirm;
     $cypher: InstanceType<CypherHelper>;
     $getPasswordStrength: GetPasswordStrength;
+    $generatePbkdf2: GeneratePbkdf2;
   }
 }
 
@@ -21,6 +24,7 @@ declare module "@vue/runtime-core" {
     $confirm: Confirm;
     $cypher: InstanceType<CypherHelper>;
     $getPasswordStrength: GetPasswordStrength;
+    $generatePbkdf2: GeneratePbkdf2;
   }
 }
 
