@@ -45,16 +45,7 @@ function editTag(tag: Tag) {
   openEditTag();
 }
 
-watch(searchQuery, newValue => {
-  const router = useRouter();
-  const query: typeof route.query = { ...route.query };
-  if (newValue) query.search = newValue;
-  else delete query.search;
-  router.push({
-    path: route.path,
-    query,
-  });
-});
+useMatchSearchQuery(searchQuery);
 </script>
 
 <template>

@@ -17,10 +17,6 @@ export default defineNuxtConfig({
     },
   },
 
-  autoImports: {
-    dirs: ["store/*"],
-  },
-
   alias: {
     store: fileURLToPath(new URL("./store", import.meta.url)),
     utils: fileURLToPath(new URL("./assets/utils", import.meta.url)),

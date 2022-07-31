@@ -2,8 +2,9 @@ import { Confirm } from "~~/plugins/confirm.client";
 import { Notify } from "~~/plugins/notify.client";
 import { Copy } from "~~/plugins/copy.client";
 import { GetPasswordStrength } from "~~/plugins/getPasswordStrength.client";
-import { CypherHelper } from "~~/plugins/cypher.client";
 
+import { CypherHelper } from "~~/plugins/cypher";
+import { DayJS } from "~~/plugins/dayjs";
 import { GeneratePbkdf2 } from "~~/plugins/generatePbkdf2";
 
 declare module "#app" {
@@ -14,6 +15,7 @@ declare module "#app" {
     $cypher: InstanceType<CypherHelper>;
     $getPasswordStrength: GetPasswordStrength;
     $generatePbkdf2: GeneratePbkdf2;
+    $dayjs: DayJS;
   }
 }
 
@@ -25,6 +27,7 @@ declare module "@vue/runtime-core" {
     $cypher: InstanceType<CypherHelper>;
     $getPasswordStrength: GetPasswordStrength;
     $generatePbkdf2: GeneratePbkdf2;
+    $dayjs: DayJS;
   }
 }
 

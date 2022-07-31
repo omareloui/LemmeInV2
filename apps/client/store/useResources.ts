@@ -1,7 +1,8 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
-import { useAuthStore } from "~~/store/useAuth";
-import { useTagsStore } from "~~/store/useTags";
+import { useAuthStore } from "store/useAuth";
+import { useTagsStore } from "store/useTags";
+import { useNotesStore } from "store/useNotes";
 
 import type { Resources } from "~~/types";
 
@@ -13,6 +14,7 @@ export const useResourcesStore = defineStore("resources", {
   actions: {
     async load() {
       const authStore = useAuthStore();
+      const notesStore = useNotesStore();
       const tagsStore = useTagsStore();
 
       if (!authStore.isSigned) return;
@@ -29,16 +31,17 @@ export const useResourcesStore = defineStore("resources", {
       )) as Resources;
 
       // await vaultStore.decryptAndSetAccounts(accounts)
-      // await notesStore.decryptAndSetNotes(notes)
+      await notesStore.decryptAndSetNotes(notes);
       await tagsStore.setTags(tags);
       // await analyzeStore.init()
     },
 
     clear() {
+      const notesStore = useNotesStore();
       const tagsStore = useTagsStore();
 
       // vaultStore.clearAccounts()
-      // notesStore.clearNotes()
+      notesStore.clearNotes();
       tagsStore.clearTags();
       // analyzeStore.clearData()
     },

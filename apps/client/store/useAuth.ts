@@ -8,7 +8,6 @@ import {
   useErrorParsers,
 } from "#imports";
 
-// eslint-disable-next-line import/no-cycle
 import { useResourcesStore } from "~~/store/useResources";
 
 import type {
@@ -46,7 +45,10 @@ export const useAuthStore = defineStore("auth", {
 
     getKeyFromCookie() {
       const cookies = Cookie();
-      return cookies.get(this.PBKDF2_COOKIE_NAME);
+      return (
+        useCookie(this.PBKDF2_COOKIE_NAME).value ||
+        cookies.get(this.PBKDF2_COOKIE_NAME)
+      );
     },
 
     getKey() {
@@ -59,20 +61,12 @@ export const useAuthStore = defineStore("auth", {
         typeof token.expires === "string"
           ? new Date(token.expires)
           : token.expires;
-      cookies.set(this.AUTH_COOKIE_NAME, token.token, {
-        sameSite: "lax",
-        path: "/",
-        expires,
-      });
+      cookies.set(this.AUTH_COOKIE_NAME, token.token, { path: "/", expires });
     },
 
     setKeyToCookie({ key, expires }: { key: string; expires: Date }) {
       const cookies = Cookie();
-      cookies.set(this.PBKDF2_COOKIE_NAME, key, {
-        sameSite: "lax",
-        path: "/",
-        expires,
-      });
+      cookies.set(this.PBKDF2_COOKIE_NAME, key, { path: "/", expires });
     },
 
     removeToken() {

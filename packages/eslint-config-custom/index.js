@@ -13,5 +13,6 @@ module.exports = {
     "comma-dangle": ["warn", "always-multiline"],
     "curly": ["warn", "multi"],
     "no-underscore-dangle": "off",
+    "import/no-cycle": "off",
   },
 };

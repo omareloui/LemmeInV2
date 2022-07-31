@@ -27,9 +27,11 @@ importers:
       '@pinia/nuxt': ^0.3.1
       '@types/crypto-js': ^4.1.1
       '@types/lodash': ^4.14.182
+      '@types/marked': ^4.0.3
       '@types/pbkdf2': ^3.1.0
       cookie-universal: ^2.2.1
       crypto-js: ^4.1.1
+      dayjs: ^1.11.4
       eslint-config-custom: workspace:^0.0.0
       fuse.js: ^6.6.2
       isomorphic-dompurify: ^0.19.0
@@ -45,6 +47,7 @@ importers:
       '@pinia/nuxt': 0.3.1
       cookie-universal: 2.2.1
       crypto-js: 4.1.1
+      dayjs: 1.11.4
       fuse.js: 6.6.2
       isomorphic-dompurify: 0.19.0
       lodash: 4.17.21
@@ -54,6 +57,7 @@ importers:
     devDependencies:
       '@types/crypto-js': 4.1.1
       '@types/lodash': 4.14.182
+      '@types/marked': 4.0.3
       '@types/pbkdf2': 3.1.0
       eslint-config-custom: link:../../packages/eslint-config-custom
       nuxt: 3.0.0-rc.6_sass@1.53.0
@@ -922,6 +926,10 @@ packages:
 
   /@types/lodash/4.14.182:
     resolution: {integrity: sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==}
+    dev: true
+
+  /@types/marked/4.0.3:
+    resolution: {integrity: sha512-HnMWQkLJEf/PnxZIfbm0yGJRRZYYMhb++O9M36UCTA9z53uPvVoSlAwJr3XOpDEryb7Hwl1qAx/MV6YIW1RXxg==}
     dev: true
 
   /@types/node/18.0.0:
@@ -2175,6 +2183,10 @@ packages:
       abab: 2.0.6
       whatwg-mimetype: 3.0.0
       whatwg-url: 11.0.0
+    dev: false
+
+  /dayjs/1.11.4:
+    resolution: {integrity: sha512-Zj/lPM5hOvQ1Bf7uAvewDaUcsJoI6JmNqmHhHl3nyumwe0XHwt8sWdOVAPACJzCebL8gQCi+K49w7iKWnGwX9g==}
     dev: false
 
   /debug/2.6.9:

@@ -1,7 +1,6 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
 import getRandomColor from "~~/assets/utils/getRandomTagColor";
-// eslint-disable-next-line import/no-cycle
 import { useAuthStore } from "~~/store/useAuth";
 
 import type { Tag, AddTag, UpdateTag, Optional } from "~~/types";

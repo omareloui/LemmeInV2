@@ -1,6 +1,8 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
-import type { Note, AddNote, UpdateNote, Optional } from "~~/types";
+import type { Note, AddNote, UpdateNote, Optional } from "types";
+
+import { useAuthStore } from "store/useAuth";
 
 export const useNotesStore = defineStore("notes", {
   state: () => ({
@@ -40,90 +42,111 @@ export const useNotesStore = defineStore("notes", {
     },
 
     async getNotes() {
-      if (!this.app.$accessor.auth.isSigned) return;
-      const { data: notes } = (await this.$axios.get("/notes")) as {
-        data: Note[];
-      };
+      const authStore = useAuthStore();
+      if (!authStore.isSigned) return;
+      const notes = (await useServerFetch("/notes")) as Note[];
       this.decryptAndSetNotes(notes);
     },
 
     async getNote(noteId: string) {
-      const note = this.notes.find(x => x.id === noteId);
-      if (note) return note;
-      const { data } = await this.$axios.get(`/notes/${noteId}`);
-      const dNote = await this.decryptNote(data);
+      const noteFromStore = this.notes.find(x => x.id === noteId);
+      if (noteFromStore) return noteFromStore;
+      const note = (await useServerFetch(`/notes/${noteId}`)) as Note;
+      const dNote = await this.decryptNote(note);
       return dNote;
     },
 
     async addNote(options: AddNote) {
+      const { $notify } = useNuxtApp();
       try {
         if (!options.body && !options.title)
           throw new Error('"note" and "title" can\'t be both empty');
         const eNote = await this.encryptNote(options);
-        const response = await this.$axios.post("/notes", eNote);
-        const note = response.data as Note;
+        const note = (await useServerFetch("/notes", {
+          body: eNote,
+          method: "POST",
+        })) as Note;
         note.title = options.title;
         note.body = options.body;
-        this.$notify.success("Created note");
+        $notify.success("Created note");
         this.unshiftToNotes(note);
         return true;
       } catch (e) {
-        this.$notify.error(e.response ? e.response.data.message : e.message);
+        const err = useErrorParsers(e);
+        if (err.name === "FetchError")
+          $notify.error(err.response._data.message);
+        else $notify.error(err.message);
         return false;
       }
     },
 
     async updateNote(options: UpdateNote) {
+      const { $notify } = useNuxtApp();
       try {
         const { id } = options;
         const optionsForRequest = options as Optional<UpdateNote, "id">;
         delete optionsForRequest.id;
         const dNote = await this.encryptNote(optionsForRequest);
-        const response = await this.$axios.put(`/notes/${id}`, dNote);
+        const note = (await useServerFetch(`/notes/${id}`, {
+          method: "PUT",
+          body: dNote,
+        })) as Note;
         const newNote = {
-          ...response.data,
+          ...note,
           body: options.body,
           title: options.title,
         } as Note;
-        this.$notify.success("Updated note");
+        $notify.success("Updated note");
         this.updateNoteCache(newNote);
         return newNote;
       } catch (e) {
-        this.$notify.error(e.response ? e.response.data.message : e.message);
+        const err = useErrorParsers(e);
+        if (err.name === "FetchError")
+          $notify.error(err.response._data.message);
+        else $notify.error(err.message);
         return false;
       }
     },
 
     async deleteNote(noteId: string) {
+      const { $confirm, $notify } = useNuxtApp();
       try {
-        const confirmed = await this.$confirm(
+        const confirmed = await $confirm(
           "Are you sure you want to delete this note?",
           { acceptMessage: "Delete" },
         );
         if (!confirmed) return false;
-        await this.$axios.delete(`/notes/${noteId}`);
+        await useServerFetch(`/notes/${noteId}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "text/plain" },
+        });
         this.removeNote(noteId);
-        this.$notify.success("Removed note.");
+        $notify.success("Removed note.");
         return true;
       } catch (e) {
-        this.$notify.error(e.response ? e.response.data.message : e.message);
+        const err = useErrorParsers(e);
+        if (err.name === "FetchError")
+          $notify.error(err.response._data.message);
+        else $notify.error(err.message);
         return false;
       }
     },
 
-    async encryptNote(note: Note) {
+    async encryptNote(note: Note | AddNote) {
+      const { $cypher } = useNuxtApp();
       const { title, body } = note;
-      const encryptedNote = note;
-      encryptedNote.title = title ? await this.$cypher.encrypt(title) : "";
-      encryptedNote.body = body ? await this.$cypher.encrypt(body) : "";
+      const encryptedNote = { ...note };
+      encryptedNote.title = title ? await $cypher.encrypt(title) : "";
+      encryptedNote.body = body ? await $cypher.encrypt(body) : "";
       return note;
     },
 
     async decryptNote(note: Note) {
+      const { $cypher } = useNuxtApp();
       const { title, body } = note;
       const decryptedNote = note;
-      decryptedNote.title = title ? await this.$cypher.decrypt(title) : title;
-      decryptedNote.body = body ? await this.$cypher.decrypt(body) : body;
+      decryptedNote.title = title ? await $cypher.decrypt(title) : title;
+      decryptedNote.body = body ? await $cypher.decrypt(body) : body;
       return note;
     },
 
