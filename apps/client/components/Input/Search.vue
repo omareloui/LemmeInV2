@@ -135,6 +135,7 @@ defineExpose({ search });
   <InputBase
     ref="inputEl"
     v-bind="props"
+    v-model="content"
     :name="name || identifier"
     type="search"
     left-icon="search"
