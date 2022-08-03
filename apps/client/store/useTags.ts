@@ -1,7 +1,10 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
+import { useAuthStore } from "store/useAuth";
+import { useVaultStore } from "store/useVault";
+import { useNotesStore } from "store/useNotes";
+
 import getRandomColor from "~~/assets/utils/getRandomTagColor";
-import { useAuthStore } from "~~/store/useAuth";
 
 import type { Tag, AddTag, UpdateTag, Optional } from "~~/types";
 
@@ -86,6 +89,8 @@ export const useTagsStore = defineStore("tags", {
 
     async deleteTag({ tagId, tagName }: { tagId: string; tagName: string }) {
       const { $notify, $confirm } = useNuxtApp();
+      const vaultStore = useVaultStore();
+      const notesStore = useNotesStore();
       try {
         const confirmed = await $confirm(
           `Are you sure you want to delete "${tagName}" tag?`,
@@ -101,9 +106,8 @@ export const useTagsStore = defineStore("tags", {
           headers: { "Content-Type": "text/plain" },
         });
         this.removeTag(tagId);
-        // TODO:
-        // this.app.$accessor.vault.removeTagFromAccounts(tagId);
-        // this.app.$accessor.notes.removeTagFromNotes(tagId);
+        vaultStore.removeTagFromAccounts(tagId);
+        notesStore.removeTagFromNotes(tagId);
         $notify.success("Removed tag.");
         return true;
       } catch (e) {

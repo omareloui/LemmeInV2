@@ -2,26 +2,31 @@ import CryptoJS from "crypto-js";
 import { useAuthStore } from "~~/store/useAuth";
 
 export class CypherHelper {
-  static encrypt(content: string) {
+  private key: string;
+
+  constructor() {
     const authStore = useAuthStore();
-    if (!authStore.isSigned) return undefined;
-    const key = authStore.getKeyFromCookie();
-    if (!key) throw new Error("No key provided");
-    return CryptoJS.AES.encrypt(content, key).toString();
+    this.key = authStore.getKeyFromCookie();
   }
 
-  static decrypt(encryption: string) {
+  encrypt(content: string) {
     const authStore = useAuthStore();
     if (!authStore.isSigned) return undefined;
-    const key = authStore.getKeyFromCookie();
-    if (!key) throw new Error("No key provided");
-    const decryptedBytes = CryptoJS.AES.decrypt(encryption, key);
+    if (!this.key) throw new Error("No key provided");
+    return CryptoJS.AES.encrypt(content, this.key).toString();
+  }
+
+  decrypt(encryption: string) {
+    const authStore = useAuthStore();
+    if (!authStore.isSigned) return undefined;
+    if (!this.key) throw new Error("No key provided");
+    const decryptedBytes = CryptoJS.AES.decrypt(encryption, this.key);
     return decryptedBytes.toString(CryptoJS.enc.Utf8);
   }
 }
 
 export default defineNuxtPlugin(() => ({
   provide: {
-    cypher: CypherHelper,
+    cypher: new CypherHelper(),
   },
 }));

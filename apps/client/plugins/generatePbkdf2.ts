@@ -7,7 +7,7 @@ function generate(password: string): string {
   const salt = "";
   const length = 32;
   const key = PBKDF2(password, salt, { iterations, keySize: length });
-  return key.toString();
+  return key.toString().slice(0, 64);
 }
 
 export default defineNuxtPlugin(() => ({

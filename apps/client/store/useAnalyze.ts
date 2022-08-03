@@ -1,5 +1,9 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
-import {
+
+import { useVaultStore } from "store/useVault";
+
+import getDatePrevMonths from "~~/assets/utils/getDatePrevMonths";
+import type {
   Analyze,
   AnalyzeKeys,
   Account,
@@ -7,7 +11,6 @@ import {
   DuplicatedPasswords,
   PasswordStrengthValues,
 } from "~~/types";
-import getDatePrevMonths from "~~/assets/utils/getDatePrevMonths";
 
 export const useAnalyzeStore = defineStore("analyze", {
   state: () => ({
@@ -161,7 +164,8 @@ export const useAnalyzeStore = defineStore("analyze", {
     },
 
     async init() {
-      const { accounts } = this.app.$accessor.vault;
+      const vaultStore = useVaultStore();
+      const { $getPasswordStrength } = useNuxtApp();
       const analyzed = {
         compromised: [],
         okay: [],
@@ -169,10 +173,10 @@ export const useAnalyzeStore = defineStore("analyze", {
         weak: [],
         duplicated: [],
         outdated: [],
-        totalAccounts: accounts.length,
+        totalAccounts: vaultStore.accounts.length,
       } as BuildAnalyzesOptions;
 
-      const nativeAccounts = accounts.filter(x => x.isNative);
+      const nativeAccounts = vaultStore.accounts.filter(x => x.isNative);
 
       const duplications = await this.setDuplicatedPasswords(nativeAccounts);
 
@@ -185,9 +189,7 @@ export const useAnalyzeStore = defineStore("analyze", {
       const checkForStrength = (
         account: Account,
         strength: PasswordStrengthValues,
-      ) =>
-        this.app.$getPasswordStrength(account.password as string).value ===
-        strength;
+      ) => $getPasswordStrength(account.password as string).value === strength;
 
       const checkIfSafe = (account: Account) =>
         checkForStrength(account, "safe");
@@ -234,7 +236,7 @@ export const useAnalyzeStore = defineStore("analyze", {
     },
 
     calculateScore() {
-      const { safe, okay, weak, compromised, outdated, duplicated } = state;
+      const { safe, okay, weak, compromised, outdated, duplicated } = this;
       let totalScore = 0;
       const safeLength = safe.counter;
       const okayLength = okay.counter;
@@ -255,16 +257,18 @@ export const useAnalyzeStore = defineStore("analyze", {
     },
 
     addAccount(account: Account) {
+      const { $getPasswordStrength } = useNuxtApp();
+      const vaultStore = useVaultStore();
       if (!account.isNative) return;
       // Set its strength
       const pass = account.password as string;
-      const strength = this.$getPasswordStrength(pass).value;
+      const strength = $getPasswordStrength(pass).value;
       this.setAccountStrength({ account, strength });
       // Set if it's outdated
-      const maxOldDate = getDatePrevMonths(state.MAX_OUTDATED_MONTHS);
+      const maxOldDate = getDatePrevMonths(this.MAX_OUTDATED_MONTHS);
       if (account.lastPasswordUpdate < maxOldDate) this.setAsOutdated(account);
       // Set if duplicated
-      const duplicatedWith = this.app.$accessor.vault.accounts.find(
+      const duplicatedWith = vaultStore.accounts.find(
         x =>
           x.isNative && x.id !== account.id && x.password === account.password,
       );
@@ -274,6 +278,8 @@ export const useAnalyzeStore = defineStore("analyze", {
     },
 
     editAccount(account: Account) {
+      const { $getPasswordStrength } = useNuxtApp();
+      const vaultStore = useVaultStore();
       if (!account.isNative) {
         this.removeFromAllWithId(account.id);
         return;
@@ -296,7 +302,7 @@ export const useAnalyzeStore = defineStore("analyze", {
       }
 
       // Update its strength
-      const strength = this.$getPasswordStrength(account.password as string);
+      const strength = $getPasswordStrength(account.password as string);
       // If there wasn't an old account (meaning it changed from oAuth to native)
       //  then add it as a new one
       if (!oldAccount)
@@ -317,7 +323,7 @@ export const useAnalyzeStore = defineStore("analyze", {
 
       // Duplicated
       this.removeFromDuplicated(account);
-      const duplicatedWith = this.app.$accessor.vault.accounts.find(
+      const duplicatedWith = vaultStore.accounts.find(
         x =>
           x.isNative && x.id !== account.id && x.password === account.password,
       );
@@ -335,7 +341,8 @@ export const useAnalyzeStore = defineStore("analyze", {
 
     removeFromAll(account: Account) {
       if (!account.isNative) return;
-      const strength = this.$getPasswordStrength(account.password as string);
+      const { $getPasswordStrength } = useNuxtApp();
+      const strength = $getPasswordStrength(account.password as string);
       this.removeFromStrength({ account, strength: strength.value });
       this.removeFromDuplicated(account);
       this.removeFromOutdated(account);

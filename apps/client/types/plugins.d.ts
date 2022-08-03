@@ -1,7 +1,7 @@
 import { Confirm } from "~~/plugins/confirm.client";
 import { Notify } from "~~/plugins/notify.client";
 import { Copy } from "~~/plugins/copy.client";
-import { GetPasswordStrength } from "~~/plugins/getPasswordStrength.client";
+import { GetPasswordStrength } from "~~/plugins/getPasswordStrength";
 
 import { CypherHelper } from "~~/plugins/cypher";
 import { DayJS } from "~~/plugins/dayjs";

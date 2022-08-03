@@ -1,8 +1,13 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
-import { take } from "lodash";
+import _ from "lodash";
+
+import { useAuthStore } from "store/useAuth";
+import { useAnalyzeStore } from "store/useAnalyze";
 
 import { AddAccount, Account, UpdateAccount, Optional } from "~~/types";
+
+const { take } = _;
 
 export const useVaultStore = defineStore("vault", {
   state: () => ({
@@ -78,56 +83,67 @@ export const useVaultStore = defineStore("vault", {
     },
 
     async updateAccountsCache() {
-      const { data } = await this.$axios.get("/accounts");
-      const accounts = data as Account[];
+      const accounts = (await useServerFetch("/accounts")) as Account[];
       this.decryptAndSetAccounts(accounts);
     },
 
-    async getAccounts() {
-      if (!this.app.$accessor.auth.isSigned) return;
+    getAccounts() {
+      const authStore = useAuthStore();
+      if (!authStore.isSigned) return;
       this.updateAccountsCache();
     },
 
-    async getAccount(accountId: string): Promise<Account> {
+    async getAccount(accountId: string) {
+      const { $notify } = useNuxtApp();
       try {
         // Check first from cache
         let acc = this.accounts.find(x => x.id === accountId);
         // Get the account if not in cache
         if (!acc) {
-          const { data } = await this.$axios.get(`/accounts/${accountId}`);
-          const account = data as Account;
-          acc = await this.decryptAccount(account);
+          const account = (await useServerFetch(
+            `/accounts/${accountId}`,
+          )) as Account;
+          acc = this.decryptAccount(account);
         }
         if (!acc) throw new Error("Can't find the account");
         return acc;
       } catch (e) {
-        // @ts-ignore
-        return this.$notify.error(e.response.data.message);
+        const err = useErrorParsers(e);
+        if (err.name === "FetchError")
+          $notify.error(err.response._data.message);
+        else $notify.error(err.message);
+        return false;
       }
     },
 
     async addAccount(options: AddAccount) {
+      const { $notify } = useNuxtApp();
+      const analyzeStore = useAnalyzeStore();
       await this.encryptAccount(options);
-      const { data } = await this.$axios.post("/accounts", options);
-      const account = (await this.decryptAccount(data)) as Account;
-      await this.app.$accessor.analyze.addAccount(account);
-      this.$notify.success("Created account.");
+      const account = (await useServerFetch("/accounts", {
+        method: "POST",
+        body: options,
+      })) as Account;
+      await analyzeStore.addAccount(account);
+      $notify.success("Created account.");
       this.unshiftToAccounts(account);
     },
 
     async editAccount(options: UpdateAccount) {
+      const { $notify } = useNuxtApp();
+      const analyzeStore = useAnalyzeStore();
       const { id } = options;
       const optionsForRequest = options as Optional<UpdateAccount, "id">;
       delete (optionsForRequest as { id?: string }).id;
       await this.encryptAccount(optionsForRequest);
-      const { data } = await this.$axios.put(
-        `/accounts/${id}`,
-        optionsForRequest,
-      );
-      const newAccount = (await this.decryptAccount(data)) as Account;
-      await this.app.$accessor.analyze.editAccount(newAccount);
+      const updatedAccount = (await useServerFetch(`/accounts/${id}`, {
+        method: "PUT",
+        body: optionsForRequest,
+      })) as Account;
+      const newAccount = this.decryptAccount(updatedAccount);
+      await analyzeStore.editAccount(newAccount);
       this.updateAccountCache(newAccount);
-      this.$notify.success("Updated account.");
+      $notify.success("Updated account.");
       return newAccount;
     },
 
@@ -140,74 +156,78 @@ export const useVaultStore = defineStore("vault", {
       accountName: string;
       goToVaultAfter?: boolean;
     }) {
+      const { $notify, $confirm } = useNuxtApp();
       try {
-        const confirmed = await this.$confirm(
+        const analyzeStore = useAnalyzeStore();
+        const router = useRouter();
+        const confirmed = await $confirm(
           `Are you sure you want to delete "${accountName}" account?`,
           { acceptMessage: "Delete" },
         );
         if (!confirmed) return;
-        await this.$axios.delete(`/accounts/${accountId}`);
+        await useServerFetch(`/accounts/${accountId}`, { method: "DELETE" });
 
         const account = await this.getAccount(accountId);
-        await this.app.$accessor.analyze.removeAccount(account);
+        await analyzeStore.removeAccount(account as Account);
 
         this.removeAccount(accountId);
-        this.$notify.success("Deleted account successfully");
-        if (goToVaultAfter) this.$router.push("/vault");
+        $notify.success("Deleted account successfully");
+        if (goToVaultAfter) router.push("/vault");
       } catch (e) {
-        // @ts-ignore
-        throw new Error(e.response.data.message);
+        const err = useErrorParsers(e);
+        if (err.name === "FetchError")
+          $notify.error(err.response._data.message);
+        else $notify.error(err.message);
       }
     },
 
-    async decryptAccount(account: Account): Promise<Account> {
-      const acc = account;
-      acc.app = await this.app.$cypher.decrypt(acc.app);
+    decryptAccount<T extends Account>(account: T): T {
+      const { $cypher } = useNuxtApp();
+      const acc = { ...account };
+      acc.app = $cypher.decrypt(acc.app)!;
       acc.accountIdentifier =
-        acc.accountIdentifier &&
-        (await this.app.$cypher.decrypt(acc.accountIdentifier));
-      acc.site = acc.site && (await this.app.$cypher.decrypt(acc.site));
-      acc.note = acc.note && (await this.app.$cypher.decrypt(acc.note));
+        acc.accountIdentifier && $cypher.decrypt(acc.accountIdentifier);
+      acc.site = acc.site && $cypher.decrypt(acc.site);
+      acc.note = acc.note && $cypher.decrypt(acc.note);
 
-      if (acc.isNative)
-        acc.password = await this.app.$cypher.decrypt(acc.password as string);
-      else acc.password = await this.decryptAccount(acc.password);
+      if (acc.isNative) acc.password = $cypher.decrypt(acc.password as string)!;
+      else acc.password = this.decryptAccount(acc.password as Account);
 
       return acc;
     },
 
-    async encryptAccount(account: Account): Promise<Account> {
+    encryptAccount<T extends Account | AddAccount>(account: T): T {
+      const { $cypher } = useNuxtApp();
       const acc = account;
-      acc.app = await this.app.$cypher.encrypt(acc.app);
-      if (acc.isNative)
-        acc.password = await this.app.$cypher.encrypt(acc.password as string);
+      acc.app = $cypher.encrypt(acc.app)!;
+      if (acc.isNative) acc.password = $cypher.encrypt(acc.password as string)!;
       acc.accountIdentifier =
-        acc.accountIdentifier &&
-        (await this.app.$cypher.encrypt(acc.accountIdentifier));
-      acc.site = acc.site && (await this.app.$cypher.encrypt(acc.site));
-      acc.note = acc.note && (await this.app.$cypher.encrypt(acc.note));
+        acc.accountIdentifier && $cypher.encrypt(acc.accountIdentifier);
+      acc.site = acc.site && $cypher.encrypt(acc.site);
+      acc.note = acc.note && $cypher.encrypt(acc.note);
       return acc;
     },
 
     async updateLastUsed(accountId: string) {
-      await this.$axios.put(`/accounts/${accountId}/last-used`);
+      await useServerFetch(`/accounts/${accountId}/last-used`, {
+        method: "PUT",
+      });
       this.updateLastUsedCache(accountId);
     },
 
     async copy(accountId: string) {
+      const { $copy } = useNuxtApp();
       // Get the account
       const acc = (await this.getAccount(accountId)) as Account;
       if (!acc || !acc.isNative) return;
       // Update it's last used
       await this.updateLastUsed(accountId);
       // Copy the account
-      this.$copy(acc.password as string, "Copied password!");
+      $copy(acc.password as string, "Copied password!");
     },
 
-    async decryptAndSetAccounts(accounts: Account[]) {
-      const dAccounts = await Promise.all(
-        accounts.map(x => this.decryptAccount(x)),
-      );
+    decryptAndSetAccounts(accounts: Account[]) {
+      const dAccounts = accounts.map(x => this.decryptAccount(x));
       this.setAccounts(dAccounts);
     },
   },
