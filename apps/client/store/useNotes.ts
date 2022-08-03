@@ -86,10 +86,10 @@ export const useNotesStore = defineStore("notes", {
         const { id } = options;
         const optionsForRequest = options as Optional<UpdateNote, "id">;
         delete optionsForRequest.id;
-        const dNote = await this.encryptNote(optionsForRequest);
+        const eNote = await this.encryptNote(optionsForRequest);
         const note = (await useServerFetch(`/notes/${id}`, {
           method: "PUT",
-          body: dNote,
+          body: eNote,
         })) as Note;
         const newNote = {
           ...note,
@@ -132,13 +132,13 @@ export const useNotesStore = defineStore("notes", {
       }
     },
 
-    async encryptNote(note: Note | AddNote) {
+    async encryptNote<T extends Note | AddNote>(note: T) {
       const { $cypher } = useNuxtApp();
       const { title, body } = note;
-      const encryptedNote = { ...note };
+      const encryptedNote = { ...note, tags: [...(note.tags || [])] } as T;
       encryptedNote.title = title ? await $cypher.encrypt(title) : "";
       encryptedNote.body = body ? await $cypher.encrypt(body) : "";
-      return note;
+      return encryptedNote;
     },
 
     async decryptNote(note: Note) {
