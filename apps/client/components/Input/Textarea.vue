@@ -146,7 +146,7 @@ onMounted(() => {
       'input-wrapper--has-right-icon': !!rightIcon,
     }"
   >
-    <glass-card
+    <GlassCard
       class="input-glass"
       tint="background-tertiary"
       no-back-shape
@@ -168,23 +168,23 @@ onMounted(() => {
           @blur="onBlur"
         ></textarea>
       </div>
-    </glass-card>
+    </GlassCard>
 
     <label v-if="label" :for="identifier" class="label">
       {{ label }}
       <span v-if="notRequired" class="label__optional">(optional)</span>
     </label>
 
-    <transition name="fade">
+    <Transition name="fade">
       <span v-if="!!errorMessage" class="error">{{ errorMessage }}</span>
-    </transition>
+    </Transition>
 
-    <transition
+    <Transition
       v-for="side of (['right', 'left'] as const)"
       :key="side"
       name="fade"
     >
-      <icon
+      <Icon
         v-if="
           (side === 'right' && !!rightIcon) || (side === 'left' && leftIcon)
         "
@@ -204,7 +204,7 @@ onMounted(() => {
         @keyup:enter="handleIconClick(side)"
         @keyup:space="handleIconClick(side)"
       />
-    </transition>
+    </Transition>
   </div>
 </template>
 

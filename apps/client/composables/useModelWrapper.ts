@@ -1,8 +1,6 @@
-export function useModelWrapper<
-  Props extends { modelValue: string | string[] },
->(
+export function useModelWrapper<T, Props extends { modelValue: T }>(
   props: Props,
-  emit: (event: "update:modelValue", ...args: unknown[]) => void,
+  emit: (event: "update:modelValue", value: T) => void,
 ) {
   return computed<Props["modelValue"]>({
     get: () => props.modelValue,
