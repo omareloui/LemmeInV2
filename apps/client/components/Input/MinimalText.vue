@@ -26,19 +26,14 @@ const content = useModelWrapper(props, emit);
 if (props.default) content.value = props.default;
 
 function resize() {
-  if (!inputEl.value) return;
+  if (!inputEl.value || !props.isTextarea) return;
   inputEl.value.style.height = "5px";
   inputEl.value.style.height = `${inputEl.value.scrollHeight}px`;
 }
 
 function onInput(e: unknown) {
-  console.log("===================================");
-  console.log("before");
-  console.log(content.value);
-  content.value = (e as { target: HTMLInputElement }).target.value;
-  console.log("after");
-  console.log(content.value);
-  console.log("-----------------------------------");
+  const newValue = (e as { target: HTMLInputElement }).target.value;
+  content.value = newValue;
   if (props.isTextarea) resize();
 }
 
@@ -54,6 +49,7 @@ function focus() {
   moveCursorToEnd();
 }
 
+onMounted(() => resize());
 defineExpose({ focus });
 </script>
 
@@ -61,7 +57,7 @@ defineExpose({ focus });
   <Component
     :is="isTextarea ? 'textarea' : 'input'"
     ref="inputEl"
-    :value="!isTextarea ? content : undefined"
+    v-model="content"
     class="input-minimal"
     :class="{ 'input-minimal--textarea': isTextarea }"
     v-bind="{ placeholder }"

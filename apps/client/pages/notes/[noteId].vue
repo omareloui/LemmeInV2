@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Note } from "types";
 import { useNotesStore } from "~~/store/useNotes";
+import InputMinimalText from "~~/components/Input/MinimalText.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -12,6 +13,7 @@ const note = ref<Note>(n);
 
 const hasTags = computed(() => !!note.value.tags && note.value.tags.length > 0);
 
+const bodyInput = ref<InstanceType<typeof InputMinimalText> | null>(null);
 const showCreatedAt = ref(false);
 
 const isEditing = ref(false);
@@ -41,8 +43,7 @@ function onKeyup(e: KeyboardEvent) {
 async function openEditing() {
   isEditing.value = true;
   await nextTick();
-  // TODO:
-  // this.$refs.bodyInput.focus()
+  if (bodyInput.value) bodyInput.value.focus();
 }
 
 async function save() {
@@ -139,7 +140,8 @@ onUnmounted(() => window.removeEventListener("keyup", onKeyup));
     </div>
 
     <div v-if="isEditing" class="note__tags--edit">
-      <InputTags v-model="editData.tags" identifier="tags" left-icon="" />
+      <!-- TODO: -->
+      <!-- <InputTags v-model="editData.tags" identifier="tags" left-icon="" /> -->
     </div>
 
     <div v-if="!isEditing" class="dates">
