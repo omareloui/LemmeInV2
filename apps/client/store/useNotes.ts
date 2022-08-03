@@ -72,10 +72,7 @@ export const useNotesStore = defineStore("notes", {
         this.unshiftToNotes(note);
         return true;
       } catch (e) {
-        const err = useErrorParsers(e);
-        if (err.name === "FetchError")
-          $notify.error(err.response._data.message);
-        else $notify.error(err.message);
+        $notify.error(useGetErrorMessage(e));
         return false;
       }
     },
@@ -100,10 +97,7 @@ export const useNotesStore = defineStore("notes", {
         this.updateNoteCache(newNote);
         return newNote;
       } catch (e) {
-        const err = useErrorParsers(e);
-        if (err.name === "FetchError")
-          $notify.error(err.response._data.message);
-        else $notify.error(err.message);
+        $notify.error(useGetErrorMessage(e));
         return false;
       }
     },
@@ -124,10 +118,7 @@ export const useNotesStore = defineStore("notes", {
         $notify.success("Removed note.");
         return true;
       } catch (e) {
-        const err = useErrorParsers(e);
-        if (err.name === "FetchError")
-          $notify.error(err.response._data.message);
-        else $notify.error(err.message);
+        $notify.error(useGetErrorMessage(e));
         return false;
       }
     },

@@ -59,9 +59,7 @@ export const useTagsStore = defineStore("tags", {
         this.unshiftToTags(response);
         return response;
       } catch (e) {
-        const err = useErrorParsers(e);
-        if (err.name === "FetchError")
-          $notify.error(err.response._data.message);
+        $notify.error(useGetErrorMessage(e));
         return false;
       }
     },
@@ -80,9 +78,7 @@ export const useTagsStore = defineStore("tags", {
         this.updateTagCache(response);
         return true;
       } catch (e) {
-        const err = useErrorParsers(e);
-        if (err.name === "FetchError")
-          $notify.error(err.response._data.message);
+        $notify.error(useGetErrorMessage(e));
         return false;
       }
     },
@@ -111,9 +107,7 @@ export const useTagsStore = defineStore("tags", {
         $notify.success("Removed tag.");
         return true;
       } catch (e) {
-        const err = useErrorParsers(e);
-        if (err.name === "FetchError")
-          $notify.error(err.response._data.message);
+        $notify.error(useGetErrorMessage(e));
         return false;
       }
     },

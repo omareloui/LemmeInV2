@@ -108,10 +108,7 @@ export const useVaultStore = defineStore("vault", {
         if (!acc) throw new Error("Can't find the account");
         return acc;
       } catch (e) {
-        const err = useErrorParsers(e);
-        if (err.name === "FetchError")
-          $notify.error(err.response._data.message);
-        else $notify.error(err.message);
+        $notify.error(useGetErrorMessage(e));
         return false;
       }
     },
@@ -174,10 +171,7 @@ export const useVaultStore = defineStore("vault", {
         $notify.success("Deleted account successfully");
         if (goToVaultAfter) router.push("/vault");
       } catch (e) {
-        const err = useErrorParsers(e);
-        if (err.name === "FetchError")
-          $notify.error(err.response._data.message);
-        else $notify.error(err.message);
+        $notify.error(useGetErrorMessage(e));
       }
     },
 

@@ -144,9 +144,7 @@ async function onSubmit() {
     if (hasError) return;
     await props.submitFunction(getValues());
   } catch (e) {
-    const err = useErrorParsers(e);
-    if (err.name === "FetchError") $notify.error(err.response._data.message);
-    else $notify.error(err.message);
+    $notify.error(useGetErrorMessage(e));
   } finally {
     endLoading();
   }
