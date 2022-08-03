@@ -16,19 +16,18 @@ const formFields = [
       notRequired: true,
     },
   },
-  // TODO:
-  // {
-  //   id: "body",
-  //   fieldType: "Textarea",
-  //   props: {
-  //     modelValue: "",
-  //     label: "Note",
-  //     minLength: 2,
-  //     rows: 10,
-  //     focusOnMount: true,
-  //     notRequired: true,
-  //   },
-  // },
+  {
+    id: "body",
+    fieldType: "Textarea",
+    props: {
+      modelValue: "",
+      label: "Note",
+      minLength: 2,
+      rows: 10,
+      focusOnMount: true,
+      notRequired: true,
+    },
+  },
   // TODO:
   // {
   //   id: "tags",
