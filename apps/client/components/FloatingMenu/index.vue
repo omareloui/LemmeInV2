@@ -107,7 +107,7 @@ onBeforeMount(removeEvents);
       /> -->
     </Dialogue>
     <Dialogue :is-shown="isPassGenShown" @close="closePassGen">
-      <!-- <PasswordGenerator @save-password="savePassword" /> -->
+      <PasswordGenerator @save-password="savePassword" />
     </Dialogue>
   </div>
 </template>

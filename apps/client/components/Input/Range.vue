@@ -7,7 +7,7 @@ const props = withDefaults(
     min?: number;
     max?: number;
     step?: number;
-    doNotShowValue: boolean;
+    doNotShowValue?: boolean;
   }>(),
   {
     label: undefined,
