@@ -29,6 +29,7 @@ importers:
       '@types/lodash': ^4.14.182
       '@types/marked': ^4.0.3
       '@types/pbkdf2': ^3.1.0
+      '@types/qrcode': ^1.4.2
       cookie-universal: ^2.2.1
       crypto-js: ^4.1.1
       dayjs: ^1.11.4
@@ -59,6 +60,7 @@ importers:
       '@types/lodash': 4.14.182
       '@types/marked': 4.0.3
       '@types/pbkdf2': 3.1.0
+      '@types/qrcode': 1.4.2
       eslint-config-custom: link:../../packages/eslint-config-custom
       nuxt: 3.0.0-rc.6_sass@1.53.0
       sass: 1.53.0
@@ -946,6 +948,12 @@ packages:
 
   /@types/pbkdf2/3.1.0:
     resolution: {integrity: sha512-Cf63Rv7jCQ0LaL8tNXmEyqTHuIJxRdlS5vMh1mj5voN4+QFhVZnlZruezqpWYDiJ8UTzhP0VmeLXCmBk66YrMQ==}
+    dependencies:
+      '@types/node': 18.0.0
+    dev: true
+
+  /@types/qrcode/1.4.2:
+    resolution: {integrity: sha512-7uNT9L4WQTNJejHTSTdaJhfBSCN73xtXaHFyBJ8TSwiLhe4PRuTue7Iph0s2nG9R/ifUaSnGhLUOZavlBEqDWQ==}
     dependencies:
       '@types/node': 18.0.0
     dev: true

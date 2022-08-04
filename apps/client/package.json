@@ -16,6 +16,7 @@
     "@types/lodash": "^4.14.182",
     "@types/marked": "^4.0.3",
     "@types/pbkdf2": "^3.1.0",
+    "@types/qrcode": "^1.4.2",
     "eslint-config-custom": "workspace:^0.0.0",
     "nuxt": "3.0.0-rc.6",
     "sass": "^1.53.0",
