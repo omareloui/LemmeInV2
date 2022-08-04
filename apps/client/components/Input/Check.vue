@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InputCheckOption } from "~~/types";
+import type { InputCheckOption } from "types";
 
 const { $notify } = useNuxtApp();
 
@@ -66,7 +66,7 @@ function changeCheckbox(option: InputCheckOption) {
 
     focusOnCheckbox(option.id);
   } catch (e) {
-    $notify.error(useGetErrorMessage(e));
+    $notify.error(useErrorMessage(e));
   }
 }
 

@@ -72,7 +72,7 @@ export const useNotesStore = defineStore("notes", {
         this.unshiftToNotes(note);
         return true;
       } catch (e) {
-        $notify.error(useGetErrorMessage(e));
+        $notify.error(useErrorMessage(e));
         return false;
       }
     },
@@ -97,7 +97,7 @@ export const useNotesStore = defineStore("notes", {
         this.updateNoteCache(newNote);
         return newNote;
       } catch (e) {
-        $notify.error(useGetErrorMessage(e));
+        $notify.error(useErrorMessage(e));
         return false;
       }
     },
@@ -118,7 +118,7 @@ export const useNotesStore = defineStore("notes", {
         $notify.success("Removed note.");
         return true;
       } catch (e) {
-        $notify.error(useGetErrorMessage(e));
+        $notify.error(useErrorMessage(e));
         return false;
       }
     },

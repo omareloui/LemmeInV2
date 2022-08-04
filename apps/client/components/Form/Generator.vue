@@ -144,7 +144,7 @@ async function onSubmit() {
     if (hasError) return;
     await props.submitFunction(getValues());
   } catch (e) {
-    $notify.error(useGetErrorMessage(e));
+    $notify.error(useErrorMessage(e));
   } finally {
     endLoading();
   }

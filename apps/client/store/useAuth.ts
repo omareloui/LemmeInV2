@@ -203,7 +203,7 @@ export const useAuthStore = defineStore("auth", {
         this.setKeyToCookie({ key, expires });
         this.pbk = key;
       } catch (e) {
-        $notify.error(useGetErrorMessage(e));
+        $notify.error(useErrorMessage(e));
       }
     },
   },

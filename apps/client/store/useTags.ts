@@ -59,7 +59,7 @@ export const useTagsStore = defineStore("tags", {
         this.unshiftToTags(response);
         return response;
       } catch (e) {
-        $notify.error(useGetErrorMessage(e));
+        $notify.error(useErrorMessage(e));
         return false;
       }
     },
@@ -78,7 +78,7 @@ export const useTagsStore = defineStore("tags", {
         this.updateTagCache(response);
         return true;
       } catch (e) {
-        $notify.error(useGetErrorMessage(e));
+        $notify.error(useErrorMessage(e));
         return false;
       }
     },
@@ -107,7 +107,7 @@ export const useTagsStore = defineStore("tags", {
         $notify.success("Removed tag.");
         return true;
       } catch (e) {
-        $notify.error(useGetErrorMessage(e));
+        $notify.error(useErrorMessage(e));
         return false;
       }
     },

@@ -108,7 +108,7 @@ export const useVaultStore = defineStore("vault", {
         if (!acc) throw new Error("Can't find the account");
         return acc;
       } catch (e) {
-        $notify.error(useGetErrorMessage(e));
+        $notify.error(useErrorMessage(e));
         return false;
       }
     },
@@ -171,7 +171,7 @@ export const useVaultStore = defineStore("vault", {
         $notify.success("Deleted account successfully");
         if (goToVaultAfter) router.push("/vault");
       } catch (e) {
-        $notify.error(useGetErrorMessage(e));
+        $notify.error(useErrorMessage(e));
       }
     },
 
