@@ -29,7 +29,7 @@ withDefaults(
       class="remove-button"
       size="20px"
       icon-size="10px"
-      icon="close"
+      icon="Close"
       color="cancel"
       @click="$emit('remove-tag', tag)"
     ></ButtonGlass>

@@ -72,7 +72,7 @@ onBeforeMount(removeEvents);
   <div class="floating-menu" :class="{ 'floating-menu--open': isMenuOpen }">
     <ButtonGlass
       class="open-menu"
-      icon="add"
+      icon="Add"
       size="50px"
       :color="isMenuOpen ? 'cancel' : 'primary'"
       aria-label="floating menu"
@@ -83,7 +83,7 @@ onBeforeMount(removeEvents);
       <div v-if="isMenuOpen" class="options">
         <ButtonGlass
           class="options__button"
-          icon="generate"
+          icon="Generate"
           icon-view-box="24.8 32"
           size="50px"
           aria-label="generate password"
@@ -92,7 +92,7 @@ onBeforeMount(removeEvents);
 
         <ButtonGlass
           class="options__button"
-          icon="key"
+          icon="Key"
           size="50px"
           aria-label="add new password"
           @click="openAddPass"

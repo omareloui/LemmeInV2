@@ -122,7 +122,7 @@ generate();
   <div class="password-generator">
     <div class="password-generator__generated-password-container">
       <ButtonBase class="regenerate" @click="generate">
-        <Icon name="reload" size="75%" />
+        <Icon name="Reload" size="75%" />
       </ButtonBase>
 
       <div class="generated-password">
@@ -192,7 +192,7 @@ generate();
       +pos-a(top 10px right 15px)
       +size(clamp(30px, 3vw, 35px))
       +br-cr
-      ::v-deep i
+      :deep(i)
         +center
 
     .copy-button
@@ -200,7 +200,7 @@ generate();
       +block
 
   +e(options)
-    ::v-deep
+    :deep
       .checker-wrapper
         +mx(auto)
         max-width: 500px
@@ -208,7 +208,7 @@ generate();
           grid-template-columns: repeat(2, 1fr)
           +lt-mobile
             grid-template-columns: repeat(4, 1fr)
-    ::v-deep
+    :deep
       .input-range-container
         +mx(auto)
 

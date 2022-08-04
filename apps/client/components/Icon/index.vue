@@ -29,9 +29,8 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(["click", "dblclick", "keyup:enter", "keyup:space"]);
-const IconComponent = resolveComponent(
-  `Icon${capitalize(props.name).replace(/-/g, "")}`,
-);
+const componentName = `Icon${capitalize(props.name).replace(/-/g, "")}`;
+const IconComponent = resolveComponent(componentName);
 </script>
 
 <template>
@@ -62,7 +61,37 @@ const IconComponent = resolveComponent(
   >
     <svg :viewBox="`0 0 ${viewBox}`">
       <Transition name="fade">
-        <Component :is="IconComponent"></Component>
+        <IconAdd v-if="name === 'Add'" />
+        <IconAccount v-else-if="name === 'Account'" />
+        <IconApp v-else-if="name === 'App'" />
+        <IconCheck v-else-if="name === 'Check'" />
+        <IconClose v-else-if="name === 'Close'" />
+        <IconCloseCircled v-else-if="name === 'CloseCircled'" />
+        <IconCopy v-else-if="name === 'Copy'" />
+        <IconDarkTheme v-else-if="name === 'DarkTheme'" />
+        <IconDashboard v-else-if="name === 'Dashboard'" />
+        <IconDrop v-else-if="name === 'Drop'" />
+        <IconEdit v-else-if="name === 'Edit'" />
+        <IconEye v-else-if="name === 'Eye'" />
+        <IconEyeClosed v-else-if="name === 'EyeClosed'" />
+        <IconGenerate v-else-if="name === 'Generate'" />
+        <IconKey v-else-if="name === 'Key'" />
+        <IconLightTheme v-else-if="name === 'LightTheme'" />
+        <IconLink v-else-if="name === 'Link'" />
+        <IconLogo v-else-if="name === 'Logo'" />
+        <IconLogout v-else-if="name === 'Logout'" />
+        <IconMail v-else-if="name === 'Mail'" />
+        <IconNavMenu v-else-if="name === 'NavMenu'" />
+        <IconNewTab v-else-if="name === 'NewTab'" />
+        <IconNote v-else-if="name === 'Note'" />
+        <IconPasswordHealth v-else-if="name === 'PasswordHealth'" />
+        <IconQR v-else-if="name === 'QR'" />
+        <IconReload v-else-if="name === 'Reload'" />
+        <IconSearch v-else-if="name === 'Search'" />
+        <IconSettings v-else-if="name === 'Settings'" />
+        <IconTags v-else-if="name === 'Tags'" />
+        <IconVault v-else-if="name === 'Vault'" />
+        <Component :is="IconComponent" v-else></Component>
       </Transition>
     </svg>
   </i>

@@ -45,7 +45,7 @@ onBeforeUnmount(removeEvents);
           <ButtonGlass
             v-if="!noCloseButton"
             class="close"
-            icon="close"
+            icon="Close"
             color="cancel"
             @click="closeDialogue"
           />

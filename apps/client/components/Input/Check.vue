@@ -124,7 +124,7 @@ defineExpose({
             <Transition name="input-check">
               <Icon
                 v-if="option.isChecked"
-                name="check"
+                name="Check"
                 class="option__checkbox-icon"
                 size="20px"
               ></Icon>
