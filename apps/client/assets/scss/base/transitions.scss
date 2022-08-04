@@ -5,7 +5,7 @@
 .fade-leave-active {
   @include t.tran(opacity);
 }
-.fade-enter,
+.fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
@@ -15,7 +15,7 @@
 .slide-down-leave-active {
   @include t.tran;
 }
-.slide-down-enter,
+.slide-down-enter-from,
 .slide-down-leave-to {
   opacity: 0;
   transform: translateY(-20px);
@@ -27,7 +27,7 @@
   @include t.tran(all, 0.1s);
 }
 
-.scale-out-enter,
+.scale-out-enter-from,
 .scale-out-leave-to {
   transform: scale(0);
 }
@@ -37,7 +37,7 @@
 .page-leave-active {
   @include t.tran(opacity, 0.2s);
 }
-.page-enter,
+.page-enter-from,
 .page-leave-to {
   opacity: 0;
 }
@@ -47,7 +47,7 @@
 .layout-leave-active {
   @include t.tran(opacity, 0.2s);
 }
-.layout-enter,
+.layout-enter-from,
 .layout-leave-to {
   opacity: 0;
 }
@@ -57,7 +57,7 @@
 .nav-menu-leave-active {
   @include t.tran(transform opacity);
 }
-.nav-menu-enter,
+.nav-menu-enter-from,
 .nav-menu-leave-to {
   opacity: 0;
   transform: translateY(-100%);
@@ -67,7 +67,7 @@
 .floating-menu-leave-active {
   @include t.tran(transform opacity);
 }
-.floating-menu-enter,
+.floating-menu-enter-from,
 .floating-menu-leave-to {
   opacity: 0;
   transform: translateY(100%);
@@ -78,7 +78,7 @@
 .input-check-leave-active {
   @include t.tran(transform, 150ms);
 }
-.input-check-enter,
+.input-check-enter-from,
 .input-check-leave-to {
   transform: scale(0);
 }
@@ -88,7 +88,7 @@
 .dialogue-leave-active {
   @include t.tran(opacity);
 }
-.dialogue-enter,
+.dialogue-enter-from,
 .dialogue-leave-to {
   transform: translateY(-100%);
 }
@@ -98,7 +98,7 @@
 .chips-leave-active {
   @include t.tran;
 }
-.chips-enter,
+.chips-enter-from,
 .chips-leave-to {
   opacity: 0;
   margin-left: -100px;
@@ -109,7 +109,7 @@
 .input-select-search-leave-active {
   @include t.tran($duration: 500ms);
 }
-.input-select-search-enter,
+.input-select-search-enter-from,
 .input-select-search-leave-to {
   opacity: 0;
   transform: translateY(-20px);
@@ -120,7 +120,7 @@
 .note-dates-leave-active {
   @include t.tran(opacity, $duration: 150ms);
 }
-.note-dates-enter,
+.note-dates-enter-from,
 .note-dates-leave-to {
   opacity: 0;
 }
