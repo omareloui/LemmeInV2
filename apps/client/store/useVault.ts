@@ -40,6 +40,10 @@ export const useVaultStore = defineStore("vault", {
         15,
       );
     },
+
+    hasAccounts(state) {
+      return state.accounts.length > 0;
+    },
   },
 
   actions: {
@@ -205,6 +209,9 @@ export const useVaultStore = defineStore("vault", {
     async updateLastUsed(accountId: string) {
       await useServerFetch(`/accounts/${accountId}/last-used`, {
         method: "PUT",
+        headers: {
+          "Content-Type": "text/plain",
+        },
       });
       this.updateLastUsedCache(accountId);
     },

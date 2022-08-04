@@ -4,8 +4,6 @@ export type Copy = (
 ) => Promise<void>;
 
 export default defineNuxtPlugin(() => {
-  const { $notify } = useNuxtApp();
-
   function copyFromTextarea(input: string) {
     const textarea = document.createElement("textarea");
     textarea.value = input;
@@ -27,11 +25,11 @@ export default defineNuxtPlugin(() => {
   }
 
   const copy: Copy = async (textToCopy, successMessage) => {
+    const { $notify } = useNuxtApp();
     try {
       if (navigator.clipboard && window.isSecureContext)
         navigator.clipboard.writeText(textToCopy);
       else await copyFromTextarea(textToCopy);
-
       $notify.success(successMessage || "Copied!");
     } catch (e) {
       $notify.error("Couldn't copy for unknown reason, try again later");
