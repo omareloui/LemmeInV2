@@ -2,25 +2,33 @@ import CryptoJS from "crypto-js";
 import { useAuthStore } from "~~/store/useAuth";
 
 export class CypherHelper {
-  private key: string;
+  private key?: string;
 
   constructor() {
+    this.getKey();
+  }
+
+  getKey() {
     const authStore = useAuthStore();
-    this.key = authStore.getKeyFromCookie();
+    const key = authStore.getKeyFromCookie();
+    this.key = key;
+    return key;
   }
 
   encrypt(content: string) {
     const authStore = useAuthStore();
     if (!authStore.isSigned) return undefined;
-    if (!this.key) throw new Error("No key provided");
-    return CryptoJS.AES.encrypt(content, this.key).toString();
+    const key = this.key || this.getKey();
+    if (!key) throw new Error("No key provided");
+    return CryptoJS.AES.encrypt(content, key).toString();
   }
 
   decrypt(encryption: string) {
     const authStore = useAuthStore();
     if (!authStore.isSigned) return undefined;
-    if (!this.key) throw new Error("No key provided");
-    const decryptedBytes = CryptoJS.AES.decrypt(encryption, this.key);
+    const key = this.key || this.getKey();
+    if (!key) throw new Error("No key provided");
+    const decryptedBytes = CryptoJS.AES.decrypt(encryption, key);
     return decryptedBytes.toString(CryptoJS.enc.Utf8);
   }
 }
