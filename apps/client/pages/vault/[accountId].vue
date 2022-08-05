@@ -228,13 +228,12 @@ loadIcon();
       </div>
     </Dialogue>
     <Dialogue :is-shown="isUpdateAccountShown" @close="closeUpdateAccount">
-      <!-- TODO: -->
-      <!-- <AccountEdit
+      <AccountEdit
         v-bind="account"
-        :tags="account.tags.map(x => x.id)"
+        :tags="account.tags && account.tags.map(x => x.id)"
         @edit-account="updateAccountData"
         @close-dialogue="closeUpdateAccount"
-      /> -->
+      />
     </Dialogue>
   </Container>
 </template>
@@ -300,7 +299,7 @@ loadIcon();
   section.note
     +mb(10px)
     > :first-child
-      +br-xl
+      +br-lg
       +pa(20px)
       +clr-bg(secondary)
 

@@ -128,7 +128,7 @@ onUnmounted(() => {
   window.removeEventListener("keyup", onKeyUp);
 });
 
-defineExpose({ search });
+defineExpose({ search, focus });
 </script>
 
 <template>

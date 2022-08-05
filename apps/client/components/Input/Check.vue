@@ -85,6 +85,8 @@ function validate() {
 
 defineExpose({
   clear,
+  errorMessage,
+  isErred,
   validate,
 });
 </script>

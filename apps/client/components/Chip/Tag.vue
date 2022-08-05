@@ -4,9 +4,9 @@ import { Tag } from "types";
 withDefaults(
   defineProps<{
     tag: Tag;
-    noRemoveButton: boolean;
-    invert: boolean;
-    clickable: boolean;
+    noRemoveButton?: boolean;
+    invert?: boolean;
+    clickable?: boolean;
   }>(),
   { noRemoveButton: false, invert: false, clickable: false },
 );

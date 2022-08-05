@@ -157,7 +157,7 @@ onMounted(() => {
       <div>
         <textarea
           :id="identifier"
-          :value="modelValue"
+          v-model="content"
           class="input"
           :name="name || identifier"
           :placeholder="placeholderValue"

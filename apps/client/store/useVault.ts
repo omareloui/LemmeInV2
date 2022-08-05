@@ -120,11 +120,18 @@ export const useVaultStore = defineStore("vault", {
     async addAccount(options: AddAccount) {
       const { $notify } = useNuxtApp();
       const analyzeStore = useAnalyzeStore();
-      await this.encryptAccount(options);
+      const eAccount = await this.encryptAccount(options);
       const account = (await useServerFetch("/accounts", {
         method: "POST",
-        body: options,
+        body: eAccount,
       })) as Account;
+
+      account.app = options.app;
+      account.site = options.site;
+      account.accountIdentifier = options.accountIdentifier;
+      account.note = options.note;
+      if (options.isNative) account.password = options.password;
+
       await analyzeStore.addAccount(account);
       $notify.success("Created account.");
       this.unshiftToAccounts(account);
@@ -134,18 +141,28 @@ export const useVaultStore = defineStore("vault", {
       const { $notify } = useNuxtApp();
       const analyzeStore = useAnalyzeStore();
       const { id } = options;
+
       const optionsForRequest = options as Optional<UpdateAccount, "id">;
       delete (optionsForRequest as { id?: string }).id;
-      await this.encryptAccount(optionsForRequest);
-      const updatedAccount = (await useServerFetch(`/accounts/${id}`, {
+
+      const eAccount = await this.encryptAccount(optionsForRequest);
+      const account = (await useServerFetch(`/accounts/${id}`, {
         method: "PUT",
-        body: optionsForRequest,
+        body: eAccount,
       })) as Account;
-      const newAccount = this.decryptAccount(updatedAccount);
-      await analyzeStore.editAccount(newAccount);
-      this.updateAccountCache(newAccount);
+
+      if (options.app) account.app = options.app;
+      if (options.site) account.site = options.site;
+      if (options.accountIdentifier)
+        account.accountIdentifier = options.accountIdentifier;
+      if (options.note) account.note = options.note;
+      if (options.isNative && options.password)
+        account.password = options.password;
+
+      await analyzeStore.editAccount(account);
+      this.updateAccountCache(account);
       $notify.success("Updated account.");
-      return newAccount;
+      return account;
     },
 
     async deleteAccount({
@@ -166,7 +183,10 @@ export const useVaultStore = defineStore("vault", {
           { acceptMessage: "Delete" },
         );
         if (!confirmed) return;
-        await useServerFetch(`/accounts/${accountId}`, { method: "DELETE" });
+        await useServerFetch(`/accounts/${accountId}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "text/plain" },
+        });
 
         const account = await this.getAccount(accountId);
         await analyzeStore.removeAccount(account as Account);
@@ -196,14 +216,20 @@ export const useVaultStore = defineStore("vault", {
 
     encryptAccount<T extends Account | AddAccount>(account: T): T {
       const { $cypher } = useNuxtApp();
-      const acc = account;
-      acc.app = $cypher.encrypt(acc.app)!;
-      if (acc.isNative) acc.password = $cypher.encrypt(acc.password as string)!;
-      acc.accountIdentifier =
-        acc.accountIdentifier && $cypher.encrypt(acc.accountIdentifier);
-      acc.site = acc.site && $cypher.encrypt(acc.site);
-      acc.note = acc.note && $cypher.encrypt(acc.note);
-      return acc;
+      const encryptedAccount = {
+        ...account,
+        tags: [...(account.tags || [])],
+      } as T;
+      const { app, password, accountIdentifier, site, note, isNative } =
+        account;
+      encryptedAccount.app = $cypher.encrypt(app)!;
+      if (isNative)
+        encryptedAccount.password = $cypher.encrypt(password as string)!;
+      encryptedAccount.accountIdentifier =
+        accountIdentifier && $cypher.encrypt(accountIdentifier);
+      encryptedAccount.site = site && $cypher.encrypt(site);
+      encryptedAccount.note = note && $cypher.encrypt(note);
+      return encryptedAccount;
     },
 
     async updateLastUsed(accountId: string) {

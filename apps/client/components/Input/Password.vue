@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import { useVaultStore } from "~~/store/useVault";
 import InputBase from "./Base.vue";
+import InputSelect from "./Select.vue";
 
-const inputRef = ref<InstanceType<typeof InputBase> | null>(null);
+const vaultStore = useVaultStore();
+const inputRef = ref<
+  InstanceType<typeof InputBase> | InstanceType<typeof InputSelect> | null
+>(null);
 
 const props = withDefaults(
   defineProps<{
@@ -51,10 +56,9 @@ const isShown = ref(false);
 const isNative = ref(!props.isOAuthDefault);
 const tempPassword = ref("");
 
-const errorMessage = computed(() => inputRef.value?.errorMessage);
+const errorMessage = computed(() => inputRef.value?.errorMessage || "");
 const isErred = computed(() => !!errorMessage);
-// FIXME: return this.$accessor.vault.accounts.length > 0
-const hasOtherPasswords = computed(() => false);
+const hasOtherPasswords = computed(() => vaultStore.accounts.length > 0);
 
 function validate() {
   inputRef.value?.validate();
@@ -74,13 +78,17 @@ function storeAndRestorePassword() {
   content.value = temp;
 }
 
-function toggleOAuth() {
+async function toggleOAuth() {
   storeAndRestorePassword();
   isNative.value = !isNative.value;
+  await nextTick();
   clearError();
 }
 
 defineExpose({
+  identifier: props.identifier,
+  hasOAuth: props.hasOAuth,
+  isNative,
   clearInput,
   toggleOAuth,
   validate,
@@ -96,7 +104,7 @@ defineExpose({
       'input-password--has-error': isErred,
     }"
   >
-    <transition name="fade" mode="out-in">
+    <Transition name="fade" mode="out-in">
       <InputBase
         v-if="isNative"
         ref="inputRef"
@@ -117,43 +125,43 @@ defineExpose({
         }"
         :name="name || identifier"
         :type="!isShown ? 'password' : 'text'"
-        :left-icon="noIcon ? undefined : 'key'"
-        :right-icon="isShown ? 'eye-closed' : 'eye'"
+        :left-icon="noIcon ? undefined : 'Key'"
+        :right-icon="isShown ? 'EyeClosed' : 'Eye'"
         is-right-icon-clickable
         @right-icon-click="isShown = !isShown"
       />
 
-      <!-- <input-select
-        v-if="!isNative && hasOtherPasswords"
-        ref="input"
+      <InputSelect
+        v-else
+        ref="inputRef"
+        v-model="content"
         class="input-password__select"
         label="OAuth password"
-        v-bind="{ identifier, value }"
-        @input="onInput"
+        v-bind="{ identifier }"
         primary-key="app"
-        defaultButtonText="Select a password"
-        :options="$accessor.vault.accounts"
+        default-button-text="Select a password"
+        :options="vaultStore.accounts"
         is-searchable
-      /> -->
-    </transition>
+      />
+    </Transition>
 
-    <!-- <transition name="fade">
-      <password-strength
+    <Transition name="fade">
+      <PasswordStrength
         v-if="showPasswordStrength && isNative"
         class="input-password__strength"
         line-height="10px"
         hide-score-text
-        :decrypted-password="value"
+        :decrypted-password="modelValue"
       />
-    </transition> -->
+    </Transition>
 
-    <!-- <button-base
+    <ButtonBase
       v-if="hasOAuth && hasOtherPasswords"
       class="input-password__oauth-button"
       @click="toggleOAuth"
     >
       {{ !isNative ? "Insert password?" : "Connect with another account?" }}
-    </button-base> -->
+    </ButtonBase>
   </div>
 </template>
 

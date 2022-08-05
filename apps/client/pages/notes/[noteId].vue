@@ -140,8 +140,7 @@ onUnmounted(() => window.removeEventListener("keyup", onKeyup));
     </div>
 
     <div v-if="isEditing" class="note__tags--edit">
-      <!-- TODO: -->
-      <!-- <InputTags v-model="editData.tags" identifier="tags" left-icon="" /> -->
+      <InputTags v-model="editData.tags" identifier="tags" left-icon="" />
     </div>
 
     <div v-if="!isEditing" class="dates">

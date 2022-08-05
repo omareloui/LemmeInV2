@@ -101,10 +101,10 @@ onBeforeMount(removeEvents);
     </Transition>
 
     <Dialogue :is-shown="isAddPassShown" @close="closeAddPass">
-      <!-- <AccountAdd
+      <AccountAdd
         :password="defaultPasswordForAddPass"
         @close-dialogue="closeAddPass"
-      /> -->
+      />
     </Dialogue>
     <Dialogue :is-shown="isPassGenShown" @close="closePassGen">
       <PasswordGenerator @save-password="savePassword" />

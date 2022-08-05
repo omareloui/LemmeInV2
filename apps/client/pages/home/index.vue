@@ -39,10 +39,9 @@ function getStrengthColor(s: Strength, accountsCounter: number) {
           :color="analyzeStore[prop].counter === 0 ? 'safe' : 'danger'"
         />
       </div>
-      <!-- TODO: -->
-      <!-- <LinkBase class="strength-summery__link" to="/accounts-health"
+      <LinkBase class="strength-summery__link" to="/accounts-health"
         >More info</LinkBase
-      > -->
+      >
     </section>
 
     <section v-if="vaultStore.recentlyUsed.length" class="recently-used">

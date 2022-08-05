@@ -5,10 +5,10 @@ import { useNotesStore } from "../../store/useNotes";
 
 const emit = defineEmits<{ (e: "close-dialogue"): void }>();
 
-const formFields = [
+const formFields: Structure = [
   {
     id: "title",
-    fieldType: "Base" as const,
+    fieldType: "Base",
     props: {
       modelValue: "",
       label: "Title",
@@ -28,14 +28,12 @@ const formFields = [
       notRequired: true,
     },
   },
-  // TODO:
-  // {
-  //   id: "tags",
-  //   fieldType: "Tags",
-  //   type: "tags",
-  //   props: { modelValue: [], leftIcon: "", notRequired: true },
-  // },
-] as Structure;
+  {
+    id: "tags",
+    fieldType: "Tags",
+    props: { modelValue: [], leftIcon: "", notRequired: true },
+  },
+];
 
 async function addNote(options: AddNote) {
   const succeeded = await useNotesStore().addNote(options);

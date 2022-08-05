@@ -4,15 +4,11 @@ import DOMPurify from "isomorphic-dompurify";
 
 const props = defineProps<{ content: string }>();
 
-const parsed = ref("");
-
-function loadContent() {
+const parsed = computed(() => {
   const html = marked.parse(props.content);
   const purified = DOMPurify.sanitize(html);
-  parsed.value = purified;
-}
-
-onMounted(loadContent);
+  return purified;
+});
 </script>
 
 <template>

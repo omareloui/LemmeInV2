@@ -3,23 +3,41 @@ import InputBase from "../Input/Base.vue";
 import InputEmail from "../Input/Email.vue";
 import InputPassword from "../Input/Password.vue";
 // import InputCheck from "../Input/Check.vue";
+import InputSelect from "../Input/Select.vue";
+import InputTextarea from "../Input/Textarea.vue";
 import InputTagColor from "../Input/TagColor.vue";
+import InputTags from "../Input/Tags.vue";
 
 export type TInputBase = InstanceType<typeof InputBase>;
 export type TInputEmail = InstanceType<typeof InputEmail>;
 export type TInputPassword = InstanceType<typeof InputPassword>;
 // export type TInputCheck = InstanceType<typeof InputCheck>;
+export type TInputSelect = InstanceType<typeof InputSelect>;
+export type TInputTextarea = InstanceType<typeof InputTextarea>;
 export type TInputTagColor = InstanceType<typeof InputTagColor>;
+export type TInputTags = InstanceType<typeof InputTags>;
+
+export type FieldType =
+  | "Base"
+  | "Email"
+  | "Password"
+  | "Check"
+  | "Select"
+  | "Textarea"
+  | "TagColor"
+  | "Tags";
 
 export type TInput =
   | TInputBase
   | TInputEmail
   | TInputPassword
   // | TInputCheck
-  | TInputTagColor;
-export type TInputProps = TInput["$props"];
+  | TInputSelect
+  | TInputTextarea
+  | TInputTagColor
+  | TInputTags;
 
-export type FieldType = "Base" | "Email" | "Password" | "TagColor";
+export type TInputProps = TInput["$props"];
 
 export type Field = {
   id: string;
@@ -45,12 +63,13 @@ export type Structure = Option[];
 const GAP: Gap = "gap";
 
 type PasswordValue = { value: string; isNative: boolean } | string;
-type FieldValue = string | string[] | File[] | PasswordValue | Date;
+type FieldValue = string | string[] | File[] | PasswordValue | Date | undefined;
 
 type AcceptableValues =
   | FieldValue
-  | { [key: string]: FieldValue }
-  | { id: string; [key: string]: FieldValue }[];
+  | { value: string; isNative: boolean }
+  | { id: string; [key: string]: FieldValue }[]
+  | { [key: string]: FieldValue };
 
 type Values = Record<string, AcceptableValues>;
 
@@ -87,26 +106,25 @@ const expandableFields: FieldOrGap[] = props.formFields
     [] as FieldOrGap[],
   );
 
-// const couldExpand = expandableFields.length > 0;
+const couldExpand = expandableFields.length > 0;
 
 const fields = removeGap(topLevelFields.concat(expandableFields)) as Field[];
 
 function getValues(): Values {
   const result: Values = {};
   fields.forEach(x => {
-    // TODO:
-    // if (x.type === "password") {
-    //   const passwordComponent = getInputComponent(x) as any;
-    //   if (passwordComponent.hasOAuth) {
-    //     const passwordResult: PasswordValue = {
-    //       value: x.value as string,
-    //       isNative: passwordComponent.isNative,
-    //     };
-    //     result[x.id] = passwordResult;
-    //   } else result[x.id] = x.value;
-    // }
-    // else
-    result[x.id] = x.props.modelValue;
+    if (x.fieldType === "Password") {
+      const passwordComponent = refComponents.value?.find(
+        y => y.identifier === x.id,
+      ) as TInputPassword;
+      if (passwordComponent.hasOAuth) {
+        const passwordResult: PasswordValue = {
+          value: x.props.modelValue as string,
+          isNative: passwordComponent.isNative,
+        };
+        result[x.id] = passwordResult;
+      } else result[x.id] = x.props.modelValue;
+    } else result[x.id] = x.props.modelValue;
   });
   return result;
 }
@@ -181,7 +199,7 @@ async function onSubmit() {
       </div>
     </div>
 
-    <!-- <ButtonBase
+    <ButtonBase
       v-if="couldExpand && !isExpandableShown"
       class="expand-button"
       @click="isExpandableShown = true"
@@ -199,21 +217,20 @@ async function onSubmit() {
           :class="{
             'form-field--gap': field === 'gap',
             'form-field--input': field !== 'gap',
-            'form-field--half': field !== 'gap' && field.style === 'half',
+            'form-field--half': field !== 'gap' && field.display?.isHalfColumn,
           }"
         >
           <Component
-            :is="`input-${field.type}`"
+            :is="`Input${field.fieldType}`"
             v-if="field !== 'gap'"
             ref="refComponents"
-            v-model="field.value"
+            v-bind="field.props"
+            v-model="field.props.modelValue"
             :identifier="field.id"
-            :label="field.label"
-            v-bind="{ ...field.props }"
           ></Component>
         </div>
       </div>
-    </Transition> -->
+    </Transition>
 
     <InputSubmit v-bind="{ isLoading }" class="submit" @enter="onSubmit">
       {{ submitButtonText }}
