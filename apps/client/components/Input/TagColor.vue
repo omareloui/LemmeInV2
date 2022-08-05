@@ -4,7 +4,7 @@ import tagColors from "~~/config/tag-colors";
 
 const props = withDefaults(
   defineProps<{
-    modelValue: TagColor | "";
+    modelValue: TagColor | null | undefined;
     identifier: string;
     default?: string;
     notRequired?: boolean;
@@ -30,7 +30,7 @@ function clearError() {
 }
 
 function clear() {
-  content.value = "";
+  content.value = null;
 }
 
 function select(color: TagColor) {

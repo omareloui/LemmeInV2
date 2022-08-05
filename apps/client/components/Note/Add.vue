@@ -1,39 +1,13 @@
 <script setup lang="ts">
 import type { AddNote } from "types";
-import type { Structure } from "~~/components/Form/Generator.vue";
 import { useNotesStore } from "../../store/useNotes";
 
 const emit = defineEmits<{ (e: "close-dialogue"): void }>();
 
-const formFields: Structure = [
-  {
-    id: "title",
-    fieldType: "Base",
-    props: {
-      modelValue: "",
-      label: "Title",
-      minLength: 2,
-      notRequired: true,
-    },
-  },
-  {
-    id: "body",
-    fieldType: "Textarea",
-    props: {
-      modelValue: "",
-      label: "Note",
-      minLength: 2,
-      rows: 10,
-      focusOnMount: true,
-      notRequired: true,
-    },
-  },
-  {
-    id: "tags",
-    fieldType: "Tags",
-    props: { modelValue: [], leftIcon: "", notRequired: true },
-  },
-];
+const formData = reactive({ title: "", body: "", tags: [] });
+
+const { inputComponents, addComponentRef, clearComponents } =
+  useFormComponents();
 
 async function addNote(options: AddNote) {
   const succeeded = await useNotesStore().addNote(options);
@@ -44,11 +18,37 @@ async function addNote(options: AddNote) {
 <template>
   <div class="add-note">
     <h2 class="add-note__heading">Add Note</h2>
-    <FormGenerator
-      :form-fields="formFields"
+    <FormWrapper
       submit-button-text="Create Note"
       :submit-function="addNote"
-    />
+      :components="inputComponents"
+      @clear-components="clearComponents"
+    >
+      <InputBase
+        :ref="addComponentRef"
+        v-model="formData.title"
+        identifier="title"
+        label="Title"
+        :min-length="2"
+        not-required
+      />
+      <InputTextarea
+        :ref="addComponentRef"
+        v-model="formData.body"
+        identifier="body"
+        label="Note"
+        :min-length="2"
+        :rows="10"
+        focus-on-mount
+        not-required
+      />
+      <InputTags
+        :ref="addComponentRef"
+        v-model="formData.tags"
+        left-icon=""
+        not-required
+      />
+    </FormWrapper>
   </div>
 </template>
 

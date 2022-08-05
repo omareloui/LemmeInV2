@@ -123,8 +123,8 @@ function getValues(): Values {
           isNative: passwordComponent.isNative,
         };
         result[x.id] = passwordResult;
-      } else result[x.id] = x.props.modelValue;
-    } else result[x.id] = x.props.modelValue;
+      } else result[x.id as string] = x.props.modelValue as AcceptableValues;
+    } else result[x.id as string] = x.props.modelValue as AcceptableValues;
   });
   return result;
 }
