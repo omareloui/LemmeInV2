@@ -1,58 +1,18 @@
 <script setup lang="ts">
 import { useAuthStore } from "store/useAuth";
-import type { Structure } from "~~/components/Form/Generator.vue";
 
 const authStore = useAuthStore();
 
-const formFields: Structure = [
-  {
-    id: "firstName",
-    fieldType: "Base",
-    props: {
-      label: "First Name",
-      modelValue: authStore.user?.firstName || "",
-    },
-    display: {
-      isHalfColumn: true,
-    },
-  },
-  {
-    id: "lastName",
-    fieldType: "Base",
-    props: {
-      label: "Last Name",
-      modelValue: authStore.user?.lastName || "",
-    },
-    display: {
-      isHalfColumn: true,
-    },
-  },
-  {
-    id: "email",
-    fieldType: "Email",
-    props: { modelValue: authStore.user?.email || "" },
-  },
-  // {
-  //   id: "oldPassword",
-  //   fieldType: "Password",
-  //   props: {
-  //     label: "Old password",
-  //     modelValue: "",
-  //     placeholder: "Leave empty to not update",
-  //     notRequired: true,
-  //   },
-  // },
-  // {
-  //   id: "password",
-  //   fieldType: "Password",
-  //   props: {
-  //     label: "New password",
-  //     modelValue: "",
-  //     placeholder: "Leave empty to not update",
-  //     notRequired: true,
-  //   },
-  // },
-];
+const formData = reactive({
+  firstName: authStore.user?.firstName || "",
+  lastName: authStore.user?.lastName || "",
+  email: authStore.user?.email || "",
+  oldPassword: "",
+  password: "",
+});
+
+const { inputComponents, addComponentRef, clearComponents } =
+  useFormComponents();
 </script>
 
 <template>
@@ -60,11 +20,44 @@ const formFields: Structure = [
     <template #heading>Account Settings</template>
     <main>
       <Container no-heading custom-max-width="600px">
-        <FormGenerator
-          :form-fields="formFields"
+        <FormWrapper
           :submit-function="authStore.updateMe"
           submit-button-text="Update Me"
-        />
+          :components="inputComponents"
+          @clear-components="clearComponents"
+        >
+          <InputBase
+            :ref="addComponentRef"
+            v-model="formData.firstName"
+            identifier="firstName"
+            label="First Name"
+            class="half"
+          />
+          <InputBase
+            :ref="addComponentRef"
+            v-model="formData.lastName"
+            identifier="lastName"
+            label="Last Name"
+            class="half"
+          />
+          <InputEmail :ref="addComponentRef" v-model="formData.email" />
+          <!-- <InputPassword
+            :ref="addComponentRef"
+            v-model="formData.password"
+            identifier="oldPassword"
+            label="Old password"
+            placeholder="Leave empty to not update"
+            not-required
+          />
+          <InputPassword
+            :ref="addComponentRef"
+            v-model="formData.password"
+            identifier="password"
+            label="New password"
+            placeholder="Leave empty to not update"
+            not-required
+          /> -->
+        </FormWrapper>
       </Container>
     </main>
   </Container>

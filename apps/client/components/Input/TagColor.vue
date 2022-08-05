@@ -49,6 +49,7 @@ if (!props.doNotSelectDefault) select(tagColors[0]);
 
 if (props.default) {
   const defaultColor = tagColors.find(x => x === props.default);
+  await nextTick();
   if (defaultColor) select(defaultColor);
 }
 

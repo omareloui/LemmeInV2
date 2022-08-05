@@ -2,36 +2,21 @@
 import { useTagsStore } from "store/useTags";
 
 import type { Tag, UpdateTag } from "types";
-import type { Structure } from "~~/components/Form/Generator.vue";
+
+const TAG_NAME_PATTERN = /^[^\s!@#$%^&=.,*-+`~|:;?"'/\\[\](){}<>]+$/;
 
 const tagsStore = useTagsStore();
 
 const props = defineProps<{ tag: Tag }>();
 const emit = defineEmits<{ (e: "close-dialogue"): void }>();
 
-const formFields = [
-  {
-    id: "name",
-    fieldType: "Base" as const,
-    props: {
-      modelValue: "",
-      default: props.tag.name,
-      label: "Tag name",
-      minLength: 2,
-      hint: "social_media",
-      pattern: /^[^\s!@#$%^&=.,*-+`~|:;?"'/\\[\](){}<>]+$/,
-      invalidPatternMessage:
-        "You can't use spaces or special characters in the tag",
-      focusOnMount: true,
-    },
-  },
-  {
-    id: "color",
-    fieldType: "TagColor" as const,
-    default: props.tag.color,
-    props: { modelValue: "" },
-  },
-] as Structure;
+const formData = reactive({
+  name: props.tag.name || "",
+  color: props.tag.color || "",
+});
+
+const { inputComponents, addComponentRef, clearComponents } =
+  useFormComponents();
 
 async function updateTag(options: unknown) {
   const succeeded = await tagsStore.updateTag({
@@ -54,20 +39,39 @@ async function removeTag() {
       Edit
       <span class="update-tag__heading-tag-name">“{{ tag.name }}”</span> Tag
     </h2>
-    <FormGenerator
+    <FormWrapper
       class="update-tag__form"
-      :form-fields="formFields"
       submit-button-text="Update Tag"
       :submit-function="updateTag"
-    />
+      :components="inputComponents"
+      @clear-components="clearComponents"
+    >
+      <InputBase
+        :ref="addComponentRef"
+        v-model="formData.name"
+        identifier="name"
+        label="Tag name"
+        :min-length="2"
+        hint="social_media"
+        :pattern="TAG_NAME_PATTERN"
+        invalid-pattern-message="You can't use spaces or special characters in the tag"
+        focus-on-mount
+      />
+      <InputTagColor
+        :ref="addComponentRef"
+        v-model="formData.color"
+        :default="props.tag.color"
+        identifier="color"
+      />
+    </FormWrapper>
 
-    <FormGenerator
+    <FormWrapper
       class="update-tag__remove"
-      :form-fields="[]"
       submit-button-text="Remove Tag"
       :submit-function="removeTag"
-      danger
-    />
+      :components="[]"
+      is-danger
+    ></FormWrapper>
   </div>
 </template>
 

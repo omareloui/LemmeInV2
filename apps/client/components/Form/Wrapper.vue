@@ -46,8 +46,9 @@ const props = withDefaults(
     components: TInput[];
     submitButtonText?: string;
     isExpandable?: boolean;
+    isDanger?: boolean;
   }>(),
-  { submitButtonText: "Submit", isExpandable: false },
+  { submitButtonText: "Submit", isExpandable: false, isDanger: false },
 );
 
 const emit = defineEmits<{
@@ -116,7 +117,7 @@ onBeforeUpdate(() => emit("clear-components"));
 </script>
 
 <template>
-  <form @submit.prevent="onSubmit">
+  <form :class="{ 'form--danger': isDanger }" @submit.prevent="onSubmit">
     <div class="fields">
       <slot></slot>
     </div>
@@ -156,10 +157,12 @@ form
       height: 0.7rem
       grid-column: 1 / 3
 
-    +lt-mobile
-      grid-column: unset
-      &:deep(> :not(.half))
-        grid-column: 1 / 3
+  +lt-mobile
+    .fields
+      :deep(> *)
+        grid-column: unset
+        &:not(.half)
+          grid-column: 1 / 3
 
   .expand-button
     opacity: 0.8
@@ -180,4 +183,7 @@ form
   .submit
     grid-column: 1 / 3
     +mt(15px)
+
+  &.form--danger .submit
+      +clr-bg(danger)
 </style>

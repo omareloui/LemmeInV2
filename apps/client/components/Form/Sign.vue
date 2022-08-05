@@ -7,39 +7,15 @@ const route = useRoute();
 
 const isSigninPage = route.fullPath === "/signin";
 
-const signinFields = [
-  { id: "email", fieldType: "Email" as const, props: { modelValue: "" } },
-  { id: "password", fieldType: "Password" as const, props: { modelValue: "" } },
-];
+const formData = reactive({
+  firstName: "",
+  lastName: "",
+  email: "",
+  password: "",
+});
 
-const registerFields = [
-  {
-    id: "firstName",
-    fieldType: "Base" as const,
-    props: {
-      label: "First Name",
-      modelValue: "",
-    },
-    display: {
-      isHalfColumn: true,
-    },
-  },
-  {
-    id: "lastName",
-    fieldType: "Base" as const,
-    props: {
-      label: "Last Name",
-      modelValue: "",
-    },
-    display: {
-      isHalfColumn: true,
-    },
-  },
-];
-
-const formFields = reactive(
-  isSigninPage ? signinFields : [...registerFields, ...signinFields],
-);
+const { inputComponents, addComponentRef, clearComponents } =
+  useFormComponents();
 
 async function onSubmit(values: unknown) {
   if (isSigninPage) await authStore.signin(values as SignInOptions);
@@ -49,6 +25,30 @@ async function onSubmit(values: unknown) {
 
 <template>
   <Container no-heading custom-max-width="600px">
-    <FormGenerator :form-fields="formFields" :submit-function="onSubmit" />
+    <FormWrapper
+      :submit-function="onSubmit"
+      :components="inputComponents"
+      @clear-components="clearComponents"
+    >
+      <InputBase
+        v-if="!isSigninPage"
+        :ref="addComponentRef"
+        v-model="formData.firstName"
+        identifier="firstName"
+        label="First Name"
+        class="half"
+      />
+      <InputBase
+        v-if="!isSigninPage"
+        :ref="addComponentRef"
+        v-model="formData.lastName"
+        identifier="lastName"
+        label="Last Name"
+        class="half"
+      />
+
+      <InputEmail :ref="addComponentRef" v-model="formData.email" />
+      <InputPassword :ref="addComponentRef" v-model="formData.password" />
+    </FormWrapper>
   </Container>
 </template>
