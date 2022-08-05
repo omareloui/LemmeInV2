@@ -105,6 +105,7 @@ export const useAuthStore = defineStore("auth", {
     },
 
     async signin(options: SignInOptions) {
+      const { $notify } = useNuxtApp();
       const router = useRouter();
       const result = (await useServerFetch("/auth/login", {
         method: "POST",
@@ -119,6 +120,7 @@ export const useAuthStore = defineStore("auth", {
         expires: new Date(result.token.expires),
       });
       router.push("/home");
+      $notify.info("Loading resources...");
       useResourcesStore().load();
     },
 
