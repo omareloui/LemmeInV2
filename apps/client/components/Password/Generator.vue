@@ -1,13 +1,6 @@
 <script setup lang="ts">
 import type { InputCheckOption } from "types";
 
-const characters = {
-  lower: "abcdefghijklmnopqrstuvwxyz",
-  upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-  numbers: "0123456789",
-  symbols: ".!@#$%^&",
-};
-
 const generatedPassword = ref("");
 const length = ref(16);
 const selectedCheckboxes = ref<string[]>([]);
@@ -38,74 +31,18 @@ const minLength = computed(() => {
   return len;
 });
 
-const characterSpace = computed(() => {
-  let chars = "";
-  if (getCheckboxValue("lower")) chars += characters.lower;
-  if (getCheckboxValue("upper")) chars += characters.upper;
-  if (getCheckboxValue("numbers")) chars += characters.numbers;
-  if (getCheckboxValue("symbols")) chars += characters.symbols;
-  return chars;
-});
-
-function shuffleArray<T>(originalArray: T[]): T[] {
-  const arr = [...originalArray];
-  for (let i = arr.length - 1; i > 0; i -= 1) {
-    const newPos = Math.floor(Math.random() * (i + 1)) as number;
-    [arr[i], arr[newPos]] = [arr[newPos], arr[i]];
-  }
-  return arr;
-}
-
-function generateRandomNumber(max: number) {
-  return Math.floor(Math.random() * max);
-}
-
-function getRandomCharacter(
-  characterType: "upper" | "lower" | "numbers" | "symbols",
-) {
-  const charactersToGetFrom = characters[characterType];
-  const index = generateRandomNumber(charactersToGetFrom.length);
-  return charactersToGetFrom[index];
-}
-
-// function validatePasswordRequirements() {
-//   if (length.value < minLength.value)
-//     throw new Error(
-//       `You can't set the length to "${length.value}" with the selected options`,
-//     );
-// }
-
 function generate() {
   const { $notify } = useNuxtApp();
 
   try {
-    const randomCharacters = shuffleArray(characterSpace.value.split(""));
-    const password: string[] = [];
-
-    let addedLower = false;
-    let addedUpper = false;
-    let addedNumber = false;
-    let addedSymbol = false;
-
-    for (let i = 0; i < length.value; i += 1)
-      if (getCheckboxValue("lower") && !addedLower) {
-        password.push(getRandomCharacter("lower"));
-        addedLower = true;
-      } else if (getCheckboxValue("upper") && !addedUpper) {
-        password.push(getRandomCharacter("upper"));
-        addedUpper = true;
-      } else if (getCheckboxValue("numbers") && !addedNumber) {
-        password.push(getRandomCharacter("numbers"));
-        addedNumber = true;
-      } else if (getCheckboxValue("symbols") && !addedSymbol) {
-        password.push(getRandomCharacter("symbols"));
-        addedSymbol = true;
-      } else {
-        const randomIndex = Math.floor(Math.random() * randomCharacters.length);
-        password.push(randomCharacters[randomIndex]);
-      }
-
-    generatedPassword.value = shuffleArray(password).join("");
+    const password = usePasswordGenerator({
+      includeLowerCase: getCheckboxValue("lower"),
+      includeUpperCase: getCheckboxValue("upper"),
+      includeNumbers: getCheckboxValue("numbers"),
+      includeSymbols: getCheckboxValue("symbols"),
+      length: length.value,
+    });
+    generatedPassword.value = password;
   } catch (e) {
     $notify.error(useErrorMessage(e));
   }

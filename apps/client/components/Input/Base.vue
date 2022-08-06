@@ -23,8 +23,10 @@ const props = withDefaults(
 
     leftIcon?: string;
     rightIcon?: string;
+    secondRightIcon?: string;
     isRightIconClickable?: boolean;
     isLeftIconClickable?: boolean;
+    isSecondRightIconClickable?: boolean;
   }>(),
   {
     notRequired: false,
@@ -35,6 +37,7 @@ const props = withDefaults(
     noAutoComplete: false,
     focusOnMount: false,
     isRightIconClickable: false,
+    isSecondRightIconClickable: false,
     isLeftIconClickable: false,
     default: undefined,
     name: undefined,
@@ -44,6 +47,7 @@ const props = withDefaults(
     pattern: undefined,
     leftIcon: undefined,
     rightIcon: undefined,
+    secondRightIcon: undefined,
   },
 );
 
@@ -51,6 +55,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: unknown): void;
   (e: "left-icon-click"): void;
   (e: "right-icon-click"): void;
+  (e: "second-right-icon-click"): void;
 }>();
 
 const content = useModelWrapper(props, emit);
@@ -75,8 +80,9 @@ function focus() {
   inputBaseRef.value?.focus();
 }
 
-function handleIconClick(side: "right" | "left") {
+function handleIconClick(side: "right" | "second-right" | "left") {
   if (side === "right") emit("right-icon-click");
+  if (side === "second-right") emit("second-right-icon-click");
   if (side === "left") emit("left-icon-click");
   focus();
 }
@@ -148,7 +154,8 @@ defineExpose({
       'input-wrapper--has-label': !!label,
       'input-wrapper--has-error': !!errorMessage,
       'input-wrapper--has-left-icon': !!leftIcon,
-      'input-wrapper--has-right-icon': !!rightIcon,
+      'input-wrapper--has-left-icon': !!leftIcon,
+      'input-wrapper--has-second-right-icon': !!secondRightIcon,
     }"
   >
     <GlassCard
@@ -185,18 +192,28 @@ defineExpose({
       <span v-if="!!errorMessage" class="error">{{ errorMessage }}</span>
     </transition>
 
-    <transition v-for="side of ['right', 'left']" :key="side" name="fade">
+    <transition
+      v-for="side of ['right', 'second-right', 'left']"
+      :key="side"
+      name="fade"
+    >
       <Icon
-        v-if="(side === 'right' && rightIcon) || (side === 'left' && leftIcon)"
-        :name="side === 'right' ? rightIcon! : leftIcon!"
+        v-if="
+          (side === 'right' && rightIcon) ||
+          (side === 'second-right' && secondRightIcon) ||
+          (side === 'left' && leftIcon)
+        "
+        :name="side === 'right' ? rightIcon! : side === 'second-right' ? secondRightIcon ! : leftIcon!"
         size="28px"
         :clickable="
           (side === 'left' && isLeftIconClickable) ||
-          (side === 'right' && isRightIconClickable)
+          (side === 'right' && isRightIconClickable) ||
+          (side === 'second-right' && isSecondRightIconClickable)
         "
         :focusable="
           (side === 'left' && isLeftIconClickable) ||
-          (side === 'right' && isRightIconClickable)
+          (side === 'right' && isRightIconClickable) ||
+          (side === 'second-right' && isSecondRightIconClickable)
         "
         :class="`icon icon--${side}`"
         :fill="!!errorMessage ? 'error' : undefined"
@@ -274,12 +291,17 @@ defineExpose({
     .label
       left: 50px
 
-  @each $side in right left
+  @each $side in right second-right left
     .icon--#{$side}
       +center-v
       #{$side}: 12px
 
-    &--has-#{$side}-icon
-      .input
-        padding-#{$side}: 50px
+    &--has-#{$side}-icon .input
+      padding-#{$side}: 50px
+
+  .icon--second-right
+    +center-v
+    right: 47px
+  &--has-second-right-icon .input
+    padding-right: 75px
 </style>

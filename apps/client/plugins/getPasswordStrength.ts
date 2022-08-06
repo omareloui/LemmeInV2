@@ -23,7 +23,7 @@ function calculateScore(password: string): PasswordScore {
   if (password.match(/(?=[a-z])/g)) diversity.push("lowercase");
   if (password.match(/(?=[A-Z])/g)) diversity.push("uppercase");
   if (password.match(/(?=\d)/g)) diversity.push("number");
-  if (password.match(/(?=[!@#$%^&])/g)) diversity.push("symbol");
+  if (password.match(/(?=[!@#$%^&.])/g)) diversity.push("symbol");
 
   // Calc score if diversity
   DIVERSITIES.forEach(x => {

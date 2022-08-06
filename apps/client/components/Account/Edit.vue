@@ -98,6 +98,7 @@ async function editAccount(receivedOptions: unknown) {
         :min-length="3"
         has-o-auth
         show-password-strength
+        can-generate-random
       />
 
       <div class="gap"></div>

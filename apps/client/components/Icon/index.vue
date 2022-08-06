@@ -75,6 +75,7 @@ const IconComponent = resolveComponent(componentName);
         <IconEye v-else-if="name === 'Eye'" />
         <IconEyeClosed v-else-if="name === 'EyeClosed'" />
         <IconGenerate v-else-if="name === 'Generate'" />
+        <IconGenerateInput v-else-if="name === 'GenerateInput'" />
         <IconKey v-else-if="name === 'Key'" />
         <IconLightTheme v-else-if="name === 'LightTheme'" />
         <IconLink v-else-if="name === 'Link'" />

@@ -71,6 +71,7 @@ async function addAccount(receivedOptions: unknown) {
         :min-length="3"
         has-o-auth
         show-password-strength
+        can-generate-random
       />
 
       <template #expandable>

@@ -27,6 +27,7 @@ const props = withDefaults(
     hasOAuth?: boolean;
     showPasswordStrength?: boolean;
     isOAuthDefault?: boolean;
+    canGenerateRandom?: boolean;
   }>(),
   {
     identifier: "password",
@@ -39,6 +40,7 @@ const props = withDefaults(
     focusOnMount: false,
     noIcon: false,
     hasOAuth: false,
+    canGenerateRandom: false,
     showPasswordStrength: false,
     isOAuthDefault: false,
     name: undefined,
@@ -59,6 +61,15 @@ const tempPassword = ref("");
 const errorMessage = computed(() => inputRef.value?.errorMessage || "");
 const isErred = computed(() => !!errorMessage);
 const hasOtherPasswords = computed(() => vaultStore.accounts.length > 0);
+const shownIcon = computed(() => (isShown.value ? "EyeClosed" : "Eye"));
+
+function generate() {
+  content.value = usePasswordGenerator();
+}
+
+function toggleShown() {
+  isShown.value = !isShown.value;
+}
 
 function validate() {
   inputRef.value?.validate();
@@ -126,9 +137,12 @@ defineExpose({
         :name="name || identifier"
         :type="!isShown ? 'password' : 'text'"
         :left-icon="noIcon ? undefined : 'Key'"
-        :right-icon="isShown ? 'EyeClosed' : 'Eye'"
+        :right-icon="!canGenerateRandom ? shownIcon : 'GenerateInput'"
+        :second-right-icon="!canGenerateRandom ? undefined : shownIcon"
         is-right-icon-clickable
-        @right-icon-click="isShown = !isShown"
+        :is-second-icon-clickable="canGenerateRandom"
+        @right-icon-click="canGenerateRandom ? generate() : toggleShown()"
+        @second-right-icon-click="canGenerateRandom ? toggleShown() : undefined"
       />
 
       <InputSelect
@@ -137,7 +151,7 @@ defineExpose({
         v-model="content"
         class="input-password__select"
         label="OAuth password"
-        v-bind="{ identifier }"
+        :identifier="identifier"
         primary-key="app"
         default-button-text="Select a password"
         :options="vaultStore.accounts"
