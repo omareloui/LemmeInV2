@@ -10,8 +10,8 @@ const tagsStore = useTagsStore();
 
 const emit = defineEmits<{ (e: "close-dialogue"): void }>();
 
-const { inputComponents, clearComponents, addComponentRef } =
-  useFormComponents();
+const componentsHandler = useFormComponents();
+const { addComponentRef } = componentsHandler;
 
 async function addTag(options: unknown) {
   const succeeded = await tagsStore.addTag(options as AddTag);
@@ -25,8 +25,7 @@ async function addTag(options: unknown) {
     <FormWrapper
       submit-button-text="Create Tag"
       :submit-function="addTag"
-      :components="inputComponents"
-      @clear-components="clearComponents"
+      :components-handler="componentsHandler"
     >
       <InputBase
         :ref="addComponentRef"

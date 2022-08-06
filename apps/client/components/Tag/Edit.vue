@@ -15,8 +15,8 @@ const formData = reactive({
   color: props.tag.color || "",
 });
 
-const { inputComponents, addComponentRef, clearComponents } =
-  useFormComponents();
+const componentsHandler = useFormComponents();
+const { addComponentRef } = componentsHandler;
 
 async function updateTag(options: unknown) {
   const succeeded = await tagsStore.updateTag({
@@ -43,8 +43,7 @@ async function removeTag() {
       class="update-tag__form"
       submit-button-text="Update Tag"
       :submit-function="updateTag"
-      :components="inputComponents"
-      @clear-components="clearComponents"
+      :components-handler="componentsHandler"
     >
       <InputBase
         :ref="addComponentRef"
@@ -69,7 +68,7 @@ async function removeTag() {
       class="update-tag__remove"
       submit-button-text="Remove Tag"
       :submit-function="removeTag"
-      :components="[]"
+      :components-handler="{ inputComponents: [], clearComponents: () => {} }"
       is-danger
     ></FormWrapper>
   </div>

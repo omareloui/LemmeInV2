@@ -6,8 +6,8 @@ const emit = defineEmits<{ (e: "close-dialogue"): void }>();
 
 const formData = reactive({ title: "", body: "", tags: [] });
 
-const { inputComponents, addComponentRef, clearComponents } =
-  useFormComponents();
+const componentsHandler = useFormComponents();
+const { addComponentRef } = componentsHandler;
 
 async function addNote(options: AddNote) {
   const succeeded = await useNotesStore().addNote(options);
@@ -21,8 +21,7 @@ async function addNote(options: AddNote) {
     <FormWrapper
       submit-button-text="Create Note"
       :submit-function="addNote"
-      :components="inputComponents"
-      @clear-components="clearComponents"
+      :components-handler="componentsHandler"
     >
       <InputBase
         :ref="addComponentRef"

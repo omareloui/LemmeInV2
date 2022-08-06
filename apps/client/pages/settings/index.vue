@@ -11,8 +11,8 @@ const formData = reactive({
   password: "",
 });
 
-const { inputComponents, addComponentRef, clearComponents } =
-  useFormComponents();
+const componentsHandler = useFormComponents();
+const { addComponentRef } = componentsHandler;
 </script>
 
 <template>
@@ -23,8 +23,7 @@ const { inputComponents, addComponentRef, clearComponents } =
         <FormWrapper
           :submit-function="authStore.updateMe"
           submit-button-text="Update Me"
-          :components="inputComponents"
-          @clear-components="clearComponents"
+          :components-handler="componentsHandler"
         >
           <InputBase
             :ref="addComponentRef"

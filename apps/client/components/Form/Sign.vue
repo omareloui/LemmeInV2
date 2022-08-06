@@ -14,8 +14,8 @@ const formData = reactive({
   password: "",
 });
 
-const { inputComponents, addComponentRef, clearComponents } =
-  useFormComponents();
+const componentsHandler = useFormComponents();
+const { addComponentRef } = componentsHandler;
 
 async function onSubmit(values: unknown) {
   if (isSigninPage) await authStore.signin(values as SignInOptions);
@@ -27,8 +27,7 @@ async function onSubmit(values: unknown) {
   <Container no-heading custom-max-width="600px">
     <FormWrapper
       :submit-function="onSubmit"
-      :components="inputComponents"
-      @clear-components="clearComponents"
+      :components-handler="componentsHandler"
     >
       <InputBase
         v-if="!isSigninPage"

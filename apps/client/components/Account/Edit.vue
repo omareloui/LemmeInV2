@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { AddAccountReceivedData, UpdateAccount, Account } from "types";
-import type { Structure } from "~~/components/Form/Generator.vue";
 import { useVaultStore } from "~~/store/useVault.js";
 
 const props = withDefaults(
@@ -27,75 +26,22 @@ const emit = defineEmits<{
   (e: "edit-account", value: Account): void;
 }>();
 
-const formFields: Structure = [
-  {
-    id: "app",
-    fieldType: "Base",
-    props: {
-      modelValue: props.app,
-      label: "App or Website",
-      hint: "Facebook",
-      focusOnMount: true,
-    },
-  },
-  {
-    id: "password",
-    fieldType: "Password",
-    props: {
-      modelValue: (props.isNative
-        ? props.password
-        : (props.password as Account).id) as string,
-      noIcon: true,
-      minLength: 3,
-      hasOAuth: true,
-      showPasswordStrength: true,
-      isOAuthDefault: !props.isNative,
-    },
-  },
-  "gap",
-  {
-    id: "accountIdentifier",
-    fieldType: "Base",
-    props: {
-      modelValue: props.accountIdentifier ?? "",
-      label: "Account identifier",
-      placeholder: "email or username",
-      notRequired: true,
-    },
-  },
-  {
-    id: "site",
-    fieldType: "Base",
-    props: {
-      modelValue: props.site ?? "",
-      label: "Link",
-      hint: "https://google.com",
-      notRequired: true,
-      pattern:
-        // eslint-disable-next-line no-useless-escape
-        /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/,
-      invalidPatternMessage: "The link has to be a valid url",
-    },
-  },
-  {
-    id: "tags",
-    fieldType: "Tags",
-    props: {
-      modelValue: props.tags || [],
-      leftIcon: "",
-      notRequired: true,
-    },
-  },
-  {
-    id: "note",
-    fieldType: "Textarea",
-    props: {
-      label: "Note",
-      modelValue: props.note ?? "",
-      notRequired: true,
-    },
-  },
-];
+const formData = reactive({
+  app: props.app,
+  password: (props.isNative
+    ? props.password
+    : (props.password as Account).id) as string,
+  accountIdentifier: props.accountIdentifier ?? "",
+  site: props.site ?? "",
+  tags: props.tags || [],
+  note: props.note ?? "",
+});
+
+const componentsHandler = useFormComponents();
+const { addComponentRef } = componentsHandler;
+
+const SITE_PATTERN =
+  /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/;
 
 async function editAccount(receivedOptions: unknown) {
   const { app, password, accountIdentifier, site, note, tags } =
@@ -129,11 +75,66 @@ async function editAccount(receivedOptions: unknown) {
       <span class="edit-password__heading-tag-name">“{{ app }}”</span>
       Account
     </h2>
-    <FormGenerator
-      :form-fields="formFields"
+
+    <FormWrapper
       submit-button-text="Update Account"
       :submit-function="editAccount"
-    />
+      :components-handler="componentsHandler"
+      is-expandable
+    >
+      <InputBase
+        :ref="addComponentRef"
+        v-model="formData.app"
+        identifier="app"
+        label="App or Website"
+        hint="Facebook"
+        focus-on-mount
+      />
+      <InputPassword
+        :ref="addComponentRef"
+        v-model="formData.password"
+        identifier="password"
+        no-icon
+        :min-length="3"
+        has-o-auth
+        show-password-strength
+      />
+
+      <div class="gap"></div>
+
+      <InputBase
+        :ref="addComponentRef"
+        v-model="formData.accountIdentifier"
+        identifier="accountIdentifier"
+        label="Account identifier"
+        placeholder="email or username"
+        not-required
+      />
+      <InputBase
+        :ref="addComponentRef"
+        v-model="formData.site"
+        identifier="site"
+        label="Link"
+        hint="https://google.com"
+        not-required
+        :pattern="SITE_PATTERN"
+        invalid-pattern-message="The link has to be a valid url"
+      />
+      <InputTags
+        :ref="addComponentRef"
+        v-model="formData.tags"
+        identifier="tags"
+        left-icon=""
+        not-required
+      />
+      <InputTextarea
+        :ref="addComponentRef"
+        v-model="formData.note"
+        identifier="note"
+        label="Note"
+        not-required
+      />
+    </FormWrapper>
   </div>
 </template>
 

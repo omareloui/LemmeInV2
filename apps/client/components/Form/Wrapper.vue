@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Optional } from "types";
+
 import InputBase from "../Input/Base.vue";
 import InputEmail from "../Input/Email.vue";
 import InputPassword from "../Input/Password.vue";
@@ -43,7 +45,10 @@ type SubmitFunction = (values: Values) => void | Promise<void>;
 const props = withDefaults(
   defineProps<{
     submitFunction: SubmitFunction;
-    components: TInput[];
+    componentsHandler: Optional<
+      ReturnType<typeof useFormComponents>,
+      "addComponentRef" | "addExtendedComponentRef" | "getExtendedComponents"
+    >;
     submitButtonText?: string;
     isExpandable?: boolean;
     isDanger?: boolean;
@@ -51,30 +56,37 @@ const props = withDefaults(
   { submitButtonText: "Submit", isExpandable: false, isDanger: false },
 );
 
-const emit = defineEmits<{
-  (e: "clear-components"): void;
-}>();
-
 const isLoading = ref(false);
 const isExpandableShown = ref(false);
 
-function validate() {
-  props.components.forEach(x => x.validate());
+let components: TInput[] = [];
+
+async function setComponents() {
+  const { inputComponents, getExtendedComponents } = props.componentsHandler;
+  await nextTick();
+  components = [
+    ...inputComponents,
+    ...(getExtendedComponents ? getExtendedComponents() : []),
+  ];
 }
 
 function checkIfComponentsHaveError() {
-  if (props.components.length === 0) return false;
-  for (let i = 0; i < props.components.length; i += 1) {
-    const inputComponent = props.components[i];
-    if (inputComponent.errorMessage) return true;
-  }
+  if (components.length === 0) return false;
+  for (let i = 0; i < components.length; i += 1)
+    if (components[i].errorMessage) return true;
   return false;
+}
+
+async function validate() {
+  components.forEach(x => x.validate());
+  await nextTick();
+  return checkIfComponentsHaveError();
 }
 
 function getValues(): Values {
   const result: Values = {};
 
-  props.components.forEach(comp => {
+  components.forEach(comp => {
     if ("isNative" in comp) {
       const passComp = comp as TInputPassword;
       if (passComp.hasOAuth) {
@@ -95,25 +107,24 @@ function getValues(): Values {
 }
 
 async function onSubmit() {
-  const { $notify } = useNuxtApp();
   try {
     isLoading.value = true;
 
-    validate();
+    await setComponents();
 
-    await nextTick();
-    const hasError = checkIfComponentsHaveError();
+    const hasError = await validate();
     if (hasError) return;
 
     await props.submitFunction(getValues());
   } catch (e) {
+    const { $notify } = useNuxtApp();
     $notify.error(useErrorMessage(e));
   } finally {
     isLoading.value = false;
   }
 }
 
-onBeforeUpdate(() => emit("clear-components"));
+onBeforeUpdate(props.componentsHandler.clearComponents);
 </script>
 
 <template>
