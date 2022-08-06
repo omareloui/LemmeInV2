@@ -137,17 +137,15 @@ generate();
       +block
 
   +e(options)
-    :deep
-      .checker-wrapper
-        +mx(auto)
-        max-width: 500px
-        +e(options)
-          grid-template-columns: repeat(2, 1fr)
-          +lt-mobile
-            grid-template-columns: repeat(4, 1fr)
-    :deep
-      .input-range-container
-        +mx(auto)
+    :deep(.checker-wrapper)
+      +mx(auto)
+      max-width: 500px
+      .checker-wrapper__options
+        grid-template-columns: repeat(2, 1fr)
+        +lt-mobile
+          grid-template-columns: repeat(4, 1fr)
+    :deep(.input-range-container)
+      +mx(auto)
 
   +e(save)
     +mx(15px)

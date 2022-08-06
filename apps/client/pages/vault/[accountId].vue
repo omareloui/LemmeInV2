@@ -256,13 +256,12 @@ loadIcon();
 
       .site
         +mx(10px)
-        :deep
-          .link
-            +fnt-xs
-            +py(5px)
-            > i
-              right: 2px
-              top: 2px
+        :deep(.link)
+          +fnt-xs
+          +py(5px)
+          > i
+            right: 2px
+            top: 2px
 
     .show-qr
       justify-self: end
