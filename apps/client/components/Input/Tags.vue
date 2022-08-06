@@ -130,7 +130,7 @@ defineExpose({ errorMessage, isErred, validate });
       clickable
       @click="focusOnSearch"
     >
-      <div tabindex="0">
+      <div>
         <Icon
           v-if="leftIcon"
           :name="leftIcon"
@@ -144,9 +144,7 @@ defineExpose({ errorMessage, isErred, validate });
           <span v-if="notRequired" class="label__optional">(optional)</span>
         </span>
 
-        <!-- TODO: -->
-        <!-- <TransitionGroup name="chips" class="chips"> -->
-        <div class="chips">
+        <TransitionGroup name="chips" tag="span" class="chips">
           <ChipTag
             v-for="tag in selectedTags"
             :key="tag.id"
@@ -154,8 +152,7 @@ defineExpose({ errorMessage, isErred, validate });
             :tag="tag"
             @remove-tag="removeTag"
           />
-        </div>
-        <!-- </TransitionGroup> -->
+        </TransitionGroup>
 
         <input
           ref="searchInput"
@@ -197,9 +194,6 @@ defineExpose({ errorMessage, isErred, validate });
             >
           </Transition>
           <TransitionGroup name="input-select-search" tag="div">
-            <!--
-                TODO:
-                :class="{ 'tag--selected': value.id === content }" -->
             <div
               v-for="tag in query ? searchResult : tagsToView"
               :key="tag.id"
