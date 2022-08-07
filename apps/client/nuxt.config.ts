@@ -20,6 +20,7 @@ export default defineNuxtConfig({
   alias: {
     store: fileURLToPath(new URL("./store", import.meta.url)),
     utils: fileURLToPath(new URL("./assets/utils", import.meta.url)),
+    server: fileURLToPath(new URL("./server", import.meta.url)),
   },
 
   components: {

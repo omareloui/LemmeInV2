@@ -4,6 +4,10 @@ export * from "./HTMLInputEvent";
 
 export * from "./Icon";
 
+export * from "./APIError";
+
+export * from "./User";
+export * from "./UserHistory";
 export * from "./Auth";
 export * from "./Theme";
 
