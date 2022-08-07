@@ -1,11 +1,10 @@
 import { registerValidation } from "server/validations";
 import { AuthController } from "server/controllers";
+import { alreadySignedGuard } from "server/utils";
 
 export default defineEventHandler(async event => {
-  // TODO: add policy you shouldn't be signed
-
+  alreadySignedGuard(event);
   const body = await useBody(event);
   const data = registerValidation.body.parse(body);
-
   return AuthController.register(data);
 });
