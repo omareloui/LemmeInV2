@@ -17,6 +17,8 @@ export interface DehydratedTag {
   name: string;
   color: TagColor;
   user: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Tag extends DehydratedTag {

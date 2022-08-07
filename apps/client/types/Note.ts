@@ -8,6 +8,8 @@ export interface DehydratedNote {
   title?: string;
   body?: string;
   tags?: Types.ObjectId[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Note {
@@ -16,8 +18,6 @@ export interface Note {
   body?: string;
   tags?: Tag[];
   user: User;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface AddNote {

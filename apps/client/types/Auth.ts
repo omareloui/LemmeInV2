@@ -1,4 +1,4 @@
-import type { User, Role } from "./User";
+import type { Role } from "./User";
 
 export interface SignInOptions {
   email: string;

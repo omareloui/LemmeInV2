@@ -20,6 +20,8 @@ export interface DehydratedAccount<
   lastUsed: Date | null;
   lastPasswordUpdate: Date;
   kind?: TKind;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type Account<

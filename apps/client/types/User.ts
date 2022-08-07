@@ -10,12 +10,12 @@ export interface DehydratedUser {
   email: string;
   password: string;
   role: Role;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface User extends DehydratedUser {
   _id: Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface ClientUser extends DehydratedUser {
