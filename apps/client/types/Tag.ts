@@ -1,3 +1,5 @@
+import type { Types } from "mongoose";
+
 import tagColor from "~~/config/tag-colors";
 
 export type TagColor = typeof tagColor[number];
@@ -11,10 +13,13 @@ export interface UpdateTag extends Required<AddTag> {
   id: string;
 }
 
-export interface Tag {
-  id: string;
+export interface DehydratedTag {
   name: string;
   color: TagColor;
-  user: string;
-  accountsCount: number;
+  user: Types.ObjectId;
+}
+
+export interface Tag extends DehydratedTag {
+  _id: Types.ObjectId;
+  accountsCount?: number;
 }

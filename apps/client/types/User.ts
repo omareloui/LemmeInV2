@@ -1,4 +1,4 @@
-import type { Document } from "mongoose";
+import type { Types } from "mongoose";
 import { roles } from "server/config";
 
 export type Role = typeof roles[number];
@@ -12,7 +12,8 @@ export interface DehydratedUser {
   role: Role;
 }
 
-export interface User extends DehydratedUser, Document {
+export interface User extends DehydratedUser {
+  _id: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
