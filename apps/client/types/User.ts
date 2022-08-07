@@ -17,6 +17,12 @@ export interface User extends DehydratedUser, Document {
   updatedAt: Date;
 }
 
+export interface ClientUser extends DehydratedUser {
+  _id: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface CreateUserOptions {
   firstName: string;
   lastName: string;

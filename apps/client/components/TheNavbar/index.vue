@@ -76,7 +76,7 @@ const menu = reactive({
         iconViewBox: "25.6 32",
       },
       onClick: async () => {
-        await authStore.signOut();
+        await authStore.signout();
         router.push("/");
       },
     },

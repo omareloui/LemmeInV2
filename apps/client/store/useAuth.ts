@@ -2,27 +2,26 @@ import Cookie from "cookie-universal";
 import { defineStore, acceptHMRUpdate } from "pinia";
 
 import {
-  useCookie,
-  useRouter,
-  useServerFetch,
-  useErrorParsers,
-} from "#imports";
+  ACCESS_TOKEN_COOKIE_NAME,
+  REFRESH_TOKEN_COOKIE_NAME,
+} from "utils/constants";
+import getSecondsFromString from "utils/getSecondsFromString";
+import { useResourcesStore } from "store/useResources";
 
-import { useResourcesStore } from "~~/store/useResources";
+import { useTokenedFetch } from "~~/composables/useTokenedFetch";
 
 import type {
   RegisterOptions,
   UpdateMeOptions,
   SignInOptions,
-  User,
   Token,
+  AuthenticationPayload,
+  AccessTokenContent,
 } from "~~/types";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    AUTH_COOKIE_NAME: "auth",
-    PBKDF2_COOKIE_NAME: "key",
-    user: null as User | null,
+    user: null as AccessTokenContent | null,
     pbk: null as string | null,
   }),
 
@@ -31,96 +30,33 @@ export const useAuthStore = defineStore("auth", {
   },
 
   actions: {
-    setUser(user: User | null) {
-      this.user = user;
-    },
-
-    getToken() {
-      const cookies = Cookie();
-      const cookie =
-        useCookie(this.AUTH_COOKIE_NAME).value ||
-        cookies.get(this.AUTH_COOKIE_NAME);
-      return cookie;
-    },
-
-    getKeyFromCookie() {
-      const cookies = Cookie();
-      return (
-        useCookie(this.PBKDF2_COOKIE_NAME).value ||
-        cookies.get(this.PBKDF2_COOKIE_NAME)
-      );
-    },
-
-    getKey() {
-      return this.pbk;
-    },
-
-    setToken(token: Token) {
-      const cookies = Cookie();
-      const expires =
-        typeof token.expires === "string"
-          ? new Date(token.expires)
-          : token.expires;
-      cookies.set(this.AUTH_COOKIE_NAME, token.token, { path: "/", expires });
-    },
-
-    setKeyToCookie({ key, expires }: { key: string; expires: Date }) {
-      const cookies = Cookie();
-      cookies.set(this.PBKDF2_COOKIE_NAME, key, { path: "/", expires });
-    },
-
-    removeToken() {
-      const cookies = Cookie();
-      cookies.remove(this.AUTH_COOKIE_NAME);
-    },
-
-    removeKeyCookie() {
-      const cookies = Cookie();
-      cookies.remove(this.PBKDF2_COOKIE_NAME);
-    },
-
-    setSignData({ user, token }: { user: User; token: Token }) {
-      this.setToken(token);
-      this.setUser(user);
-    },
-
     async register(options: RegisterOptions) {
-      const result = (await useServerFetch("/auth/register", {
-        method: "POST",
-        body: {
-          options,
-        },
-      })) as {
-        user: User;
-        token: Token;
-      };
+      const { accessToken, refreshToken, user } = (await useTokenedFetch(
+        "/api/auth/register",
+        { method: "POST", body: options },
+      )) as AuthenticationPayload;
       const router = useRouter();
-
-      await this.setSignData(result);
-      await this.createKey({
-        password: options.password,
-        expires: new Date(result.token.expires),
-      });
-      router.push("/");
+      this.setTokens(accessToken, refreshToken);
+      this.user = user;
+      await this.createPBKDF2(options.password);
+      router.push("/home");
     },
 
     async signin(options: SignInOptions) {
       const { $notify } = useNuxtApp();
       const router = useRouter();
-      const result = (await useServerFetch("/auth/login", {
-        method: "POST",
-        body: options,
-      })) as {
-        user: User;
-        token: Token;
-      };
-      await this.setSignData(result);
-      await this.createKey({
-        password: options.password,
-        expires: new Date(result.token.expires),
-      });
+      const { accessToken, refreshToken, user } = (await useTokenedFetch(
+        "/api/auth/login",
+        {
+          method: "POST",
+          body: options,
+        },
+      )) as AuthenticationPayload;
+      this.setTokens(accessToken, refreshToken);
+      this.user = user;
+      await this.createPBKDF2(options.password);
       router.push("/home");
-      $notify.info("Loading resources...");
+      $notify.info("Analyzing accounts...");
       useResourcesStore().load();
     },
 
@@ -141,72 +77,56 @@ export const useAuthStore = defineStore("auth", {
         options.password = password;
         options.oldPassword = oldPassword;
       }
-      const result = (await useServerFetch("/me", {
-        method: "PUT",
-        body: options,
-      })) as {
-        user: User;
-        token: Token;
-      };
-      this.setSignData(result);
+      const { accessToken, refreshToken, user } = (await useTokenedFetch(
+        "/api/me",
+        {
+          method: "PUT",
+          body: options,
+        },
+      )) as AuthenticationPayload;
+      this.setTokens(accessToken, refreshToken);
+      this.user = user;
       $notify.success("Update profile");
       router.push("/");
     },
 
-    async setMe() {
-      const token = await this.getToken();
-      if (!token) return;
-      try {
-        // FIXME:
-        // const me = (await useServerFetch("/me")) as User;
-        const me = (await $fetch("http://localhost:8000/me", {
-          headers: { authorization: `Bearer ${token}` },
-        })) as User;
-
-        this.setUser(me);
-      } catch (e) {
-        const err = useErrorParsers(e);
-
-        // eslint-disable-next-line curly
-        if (err.name === "FetchError") {
-          // FIXME:
-          // const router = useRouter();
-          this.signOut();
-          // router.push("/");
-        }
-      }
-    },
-
-    async setKeyFromCookie() {
-      const key = await this.getKeyFromCookie();
-      if (!key) return;
-      this.pbk = key;
-    },
-
-    signOut() {
-      this.removeToken();
-      useResourcesStore().clear();
-      this.setUser(null);
-      this.removeKeyCookie();
-      this.pbk = null;
-    },
-
-    async createKey({
-      password,
-      expires,
-    }: {
-      password: string;
-      expires: Date;
-    }) {
+    async createPBKDF2(password: string) {
       const { $notify } = useNuxtApp();
       try {
         const { $generatePbkdf2 } = useNuxtApp();
         const key = await $generatePbkdf2(password);
-        this.setKeyToCookie({ key, expires });
         this.pbk = key;
       } catch (e) {
         $notify.error(useErrorMessage(e));
       }
+    },
+
+    setTokens(accessToken: Token, refreshToken: Token) {
+      const cookies = Cookie();
+      cookies.set(ACCESS_TOKEN_COOKIE_NAME, accessToken.body, {
+        path: "/",
+        maxAge: getSecondsFromString(accessToken.expiration as string) - 2,
+      });
+      cookies.set(REFRESH_TOKEN_COOKIE_NAME, refreshToken.body, {
+        path: "/",
+        maxAge: getSecondsFromString(refreshToken.expiration as string),
+      });
+    },
+
+    removeCookies() {
+      const cookies = Cookie();
+      [ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME].forEach(x =>
+        cookies.remove(x),
+      );
+    },
+
+    async signout() {
+      navigateTo("/");
+      await nextTick();
+      this.removeCookies();
+      this.pbk = null;
+      this.user = null;
+      useResourcesStore().clear();
     },
   },
 });
