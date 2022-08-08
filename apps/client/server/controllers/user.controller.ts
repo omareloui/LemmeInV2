@@ -4,6 +4,7 @@ import type {
   CreateUserOptions,
   UpdateUserOptions,
   UpdateMeOptions,
+  Optional,
 } from "types";
 import { createRegex, hash, compareHash } from "server/utils";
 
@@ -26,7 +27,7 @@ export class UserController {
 
     const hashedPassword = await hash(password);
 
-    const userData: DehydratedUser = {
+    const userData: Omit<DehydratedUser, "updatedAt" | "createdAt"> = {
       firstName,
       lastName,
       email,
@@ -38,7 +39,7 @@ export class UserController {
     // Create the user
     const user = (await new User(userData).save()) as UserInterface;
     // Create the user history first entry
-    const userId = user.id.toString();
+    const userId = user._id.toString();
     await UserHistory.create({
       userId,
       ...userData,
@@ -108,7 +109,7 @@ export class UserController {
 
     // Create the history record
     const updateUserClone = { ...newUser };
-    delete (updateUserClone as { _id?: string })._id;
+    delete (updateUserClone as Optional<typeof updateUserClone, "_id">)._id;
     const newestUserHistory = await this.getNewestUserHistory(id);
     const newVersionNumber = newestUserHistory.version + 1;
     await UserHistory.create({
@@ -137,7 +138,7 @@ export class UserController {
     // Set the user's history
     const newestUserHistory = await this.getNewestUserHistory(id);
     const newVersion = newestUserHistory.version + 1;
-    delete (user as { _id?: string })._id;
+    delete (user as Optional<typeof user, "_id">)._id;
     await UserHistory.create({
       ...user,
       userId: id,

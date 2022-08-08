@@ -1,5 +1,6 @@
 import type { Types } from "mongoose";
 import { Tag } from "server/models";
+import { AccountController, NoteController } from "server/controllers";
 import { Tag as TagInterface, AddTag, DehydratedTag } from "types";
 import { createRegex } from "server/utils";
 
@@ -77,10 +78,8 @@ export class TagController {
   }
 
   public static async removeOneMine(id: string, userId: string) {
-    // TODO:
-    // await AccountService.removeTagFromAccounts(id, userId);
-    // TODO:
-    // await NoteService.removeTagFromNotes(id, userId);
+    await AccountController.removeTagFromAccounts(id, userId);
+    await NoteController.removeTagFromNotes(id, userId);
     const tag = await Tag.findOne({ _id: id, user: userId });
     if (!tag)
       throw createError({
@@ -99,13 +98,12 @@ export class TagController {
     doc: DehydratedTag & { _id: Types.ObjectId },
     userId: string,
   ): Promise<TagInterface> {
-    const tag = { ...doc };
-    // TODO:
-    // const accounts = await AccountService.getMineWithTag(
-    //   tag._id.toString(),
-    //   userId,
-    // );
-    // tag.accountsCount = accounts.length;
+    const tag = { ...doc } as TagInterface;
+    const accounts = await AccountController.getMineWithTag(
+      tag._id.toString(),
+      userId,
+    );
+    tag.accountsCount = accounts.length;
     return tag;
   }
 }

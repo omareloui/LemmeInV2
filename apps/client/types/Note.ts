@@ -4,20 +4,22 @@ import { User } from "./User";
 import { Tag } from "./Tag";
 
 export interface DehydratedNote {
-  user: Types.ObjectId;
   title?: string;
   body?: string;
   tags?: Types.ObjectId[];
+  user: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface Note {
-  _id: string;
+  _id: Types.ObjectId;
   title?: string;
   body?: string;
   tags?: Tag[];
   user: User;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface AddNote {
@@ -27,5 +29,5 @@ export interface AddNote {
 }
 
 export interface UpdateNote extends AddNote {
-  id?: string;
+  id: string;
 }
