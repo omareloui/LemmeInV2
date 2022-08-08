@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Note } from "types";
+import type { ClientNote as Note } from "types";
 import { useNotesStore } from "~~/store/useNotes";
 import InputMinimalText from "~~/components/Input/MinimalText.vue";
 
@@ -22,7 +22,7 @@ const isDeleting = ref(false);
 const editData = reactive<{ title: string; body: string; tags: string[] }>({
   title: note.value.title || "",
   body: note.value.body || "",
-  tags: note.value.tags ? note.value.tags.map(x => x.id) : [],
+  tags: note.value.tags ? note.value.tags.map(x => x._id) : [],
 });
 
 function closeEditing() {
@@ -33,7 +33,7 @@ function cancel() {
   closeEditing();
   editData.title = note.value.title || "";
   editData.body = note.value.body || "";
-  editData.tags = note.value.tags ? note.value.tags.map(x => x.id) : [];
+  editData.tags = note.value.tags ? note.value.tags.map(x => x._id) : [];
 }
 
 function onKeyup(e: KeyboardEvent) {
@@ -51,7 +51,7 @@ async function save() {
   isSaving.value = true;
   const { title, body, tags } = editData;
   const newNote = await notesStore.updateNote({
-    id: note.value.id,
+    id: note.value._id,
     title,
     body,
     tags,
@@ -66,7 +66,7 @@ async function save() {
 async function deleteNote() {
   if (isDeleting.value) return;
   isDeleting.value = true;
-  const deleted = await notesStore.deleteNote(note.value.id);
+  const deleted = await notesStore.deleteNote(note.value._id);
   if (deleted) router.push("/notes");
   isDeleting.value = false;
 }
@@ -132,7 +132,7 @@ onUnmounted(() => window.removeEventListener("keyup", onKeyup));
     <div v-if="hasTags && !isEditing" class="note__tags">
       <ChipTag
         v-for="tag in note.tags"
-        :key="tag.id"
+        :key="tag._id"
         v-bind="{ tag }"
         no-remove-button
         invert

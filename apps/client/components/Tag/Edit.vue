@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTagsStore } from "store/useTags";
 
-import type { Tag, UpdateTag } from "types";
+import type { ClientTag as Tag, UpdateTag } from "types";
 
 const TAG_NAME_PATTERN = /^[^\s!@#$%^&=.,*-+`~|:;?"'/\\[\](){}<>]+$/;
 
@@ -21,14 +21,15 @@ const { addComponentRef } = componentsHandler;
 async function updateTag(options: unknown) {
   const succeeded = await tagsStore.updateTag({
     ...(options as UpdateTag),
-    id: props.tag.id,
+    id: props.tag._id,
   });
   if (succeeded) emit("close-dialogue");
 }
 
 async function removeTag() {
-  const { id, name } = props.tag;
-  const succeeded = await tagsStore.deleteTag({ tagId: id, tagName: name });
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const { _id, name } = props.tag;
+  const succeeded = await tagsStore.deleteTag({ tagId: _id, tagName: name });
   if (succeeded) emit("close-dialogue");
 }
 </script>

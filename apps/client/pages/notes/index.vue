@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useNotesStore } from "store/useNotes";
 
-import type { Note } from "types";
+import type { ClientNote as Note } from "types";
 
 const route = useRoute();
 const notesStore = useNotesStore();
@@ -46,7 +46,7 @@ useMatchSearchQuery(searchQuery);
       <TransitionGroup name="list" class="notes" tag="div">
         <Note
           v-for="note in searchQuery ? searchResult.notes : notesStore.notes"
-          :key="note.id"
+          :key="note._id"
           class="note"
           v-bind="{ note }"
         />

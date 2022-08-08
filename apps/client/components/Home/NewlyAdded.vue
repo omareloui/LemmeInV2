@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Account } from "types";
+import type { ClientAccount as Acc } from "types";
+
+type Account = Acc<"Native" | "OAuthed">;
 
 defineProps<{ accounts: Account[] }>();
 </script>
@@ -13,7 +15,7 @@ defineProps<{ accounts: Account[] }>();
     <div class="accounts">
       <AccountPreview
         v-for="acc in accounts"
-        :key="acc.id"
+        :key="acc._id"
         :account="acc"
         no-tags
         no-date

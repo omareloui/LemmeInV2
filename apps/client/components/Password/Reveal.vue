@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = defineProps<{ password: string }>();
+defineProps<{ password: string }>();
 
 const isPassShown = ref(false);
 

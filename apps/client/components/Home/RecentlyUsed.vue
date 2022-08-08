@@ -6,7 +6,9 @@ import { useThemeStore } from "store/useTheme";
 import capitalize from "utils/capitalize";
 import getIcon from "utils/getIcon";
 
-import type { Account } from "types";
+import type { ClientAccount as Acc } from "types";
+
+type Account = Acc<"Native" | "OAuthed">;
 
 const props = defineProps<{ accounts: Account[] }>();
 const themeStore = useThemeStore();
@@ -22,7 +24,7 @@ const accounts = props.accounts.map(x => ({ ...x, icon: getIcon(x) }));
     </div>
 
     <Slider :item-width="85" :gap="10">
-      <SwiperSlide v-for="acc in accounts" :key="acc.id" class="account">
+      <SwiperSlide v-for="acc in accounts" :key="acc._id" class="account">
         <GlassCard
           class="account__card"
           :blur="10"
@@ -39,7 +41,7 @@ const accounts = props.accounts.map(x => ({ ...x, icon: getIcon(x) }));
           tint="background-secondary"
           is-back-shape-hex-color
         >
-          <LinkBase class="account__icon-wrapper" :to="`/vault/${acc.id}`">
+          <LinkBase class="account__icon-wrapper" :to="`/vault/${acc._id}`">
             <Icon
               :name="`App${capitalize(acc.icon.name)}`"
               :fill="acc.icon.color"

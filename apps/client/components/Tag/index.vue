@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Tag } from "~~/types";
+import type { ClientTag as Tag } from "~~/types";
 
 const props = defineProps<{ tag: Tag }>();
 
@@ -7,7 +7,7 @@ const emit = defineEmits<{ (e: "edit-tag", value: Tag): void }>();
 
 function goToTag() {
   const router = useRouter();
-  router.push(`/vault?tags=${props.tag.id}`);
+  router.push(`/vault?tags=${props.tag._id}`);
 }
 
 function editTag() {

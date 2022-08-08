@@ -1,3 +1,6 @@
 <template>
-  <Container>The accounts health page is under progress!</Container>
+  <Container>
+    <template #heading>Accounts Health</template>
+    The accounts health page is under progress!</Container
+  >
 </template>

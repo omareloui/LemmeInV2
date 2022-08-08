@@ -4,7 +4,9 @@ import { useAnalyzeStore } from "store/useAnalyze";
 import capitalize from "utils/capitalize";
 import getIcon from "utils/getIcon";
 
-import type { Icon, Account } from "types";
+import type { Icon, ClientAccount as Acc } from "types";
+
+type Account = Acc<"Native" | "OAuthed">;
 
 const vaultStore = useVaultStore();
 
@@ -24,7 +26,7 @@ const isUpdateAccountShown = ref(false);
 let suggestions: string[] = [];
 let duplications: Account[] = [];
 
-if (account.value.isNative) {
+if (account.value.kind === "Native") {
   const analyzeStore = useAnalyzeStore();
   const { $getPasswordStrength } = useNuxtApp();
 
@@ -32,19 +34,19 @@ if (account.value.isNative) {
     account.value.password as string,
   ).suggestions;
   duplications = analyzeStore.duplicated.accounts.filter(
-    x => x.id !== account.value.id && x.password === account.value.password,
+    x => x._id !== account.value._id && x.password === account.value.password,
   );
 }
 
 function copyAccId() {
   const { $notify, $copy } = useNuxtApp();
-  const accId = account.value.id;
+  const accId = account.value._id;
   if (!accId) $notify.error("No account identifier");
   else $copy(accId);
 }
 
 function copy() {
-  vaultStore.copy(account.value.id);
+  vaultStore.copy(account.value._id);
 }
 
 function loadIcon() {
@@ -68,7 +70,7 @@ function closeUpdateAccount() {
 }
 
 async function updateAccountData(newAccount: Account) {
-  const updatedAccount = await vaultStore.getAccount(newAccount.id);
+  const updatedAccount = await vaultStore.getAccount(newAccount._id);
   if (!updatedAccount) throw new Error("Can't find the account to update!");
   account.value = updatedAccount;
 }
@@ -76,7 +78,7 @@ async function updateAccountData(newAccount: Account) {
 async function deleteAccount() {
   try {
     await vaultStore.deleteAccount({
-      accountId: account.value.id,
+      accountId: account.value._id,
       accountName: account.value.app,
     });
   } catch (e) {
@@ -94,7 +96,7 @@ loadIcon();
     <main>
       <section
         class="primal-info"
-        :class="{ 'primal-info--is-oauth': !account.isNative }"
+        :class="{ 'primal-info--is-oauth': account.kind === 'OAuthed' }"
       >
         <Icon
           v-if="icon"
@@ -125,12 +127,16 @@ loadIcon();
           </div>
         </div>
 
-        <ButtonBase v-if="account.isNative" class="show-qr" @click="showQR">
+        <ButtonBase
+          v-if="account.kind === 'Native'"
+          class="show-qr"
+          @click="showQR"
+        >
           <Icon name="QR" size="40px" />
         </ButtonBase>
       </section>
 
-      <section v-if="account.isNative" class="password">
+      <section v-if="account.kind === 'Native'" class="password">
         <PasswordReveal
           class="password-reveal"
           :password="(account.password as string)"
@@ -152,7 +158,7 @@ loadIcon();
         />
       </section>
 
-      <section v-if="!account.isNative" class="oauth">
+      <section v-if="account.kind === 'OAuthed'" class="oauth">
         <h3>Connected with</h3>
         <AccountPreview
           :account="(account.password as Account)"
@@ -165,8 +171,8 @@ loadIcon();
       <section v-if="account.tags && account.tags.length > 0" class="tags">
         <LinkBase
           v-for="tag in account.tags"
-          :key="tag.id"
-          :to="`/vault?tags=${tag.id}`"
+          :key="tag._id"
+          :to="`/vault?tags=${tag._id}`"
         >
           <ChipTag
             class="tags__tag"
@@ -183,7 +189,7 @@ loadIcon();
       </section>
 
       <section
-        v-if="account.isNative && suggestions.length > 0"
+        v-if="account.kind === 'Native' && suggestions.length > 0"
         class="make-better"
       >
         <h3>How to make the password better</h3>
@@ -195,14 +201,14 @@ loadIcon();
       </section>
 
       <section
-        v-if="account.isNative && duplications.length > 0"
+        v-if="account.kind === 'Native' && duplications.length > 0"
         class="duplicated"
       >
         <h3>Duplicated with</h3>
         <div class="duplications">
           <AccountPreview
             v-for="duplication in duplications"
-            :key="duplication.id"
+            :key="duplication._id"
             :account="duplication"
             no-date
             no-tags
@@ -230,7 +236,8 @@ loadIcon();
     <Dialogue :is-shown="isUpdateAccountShown" @close="closeUpdateAccount">
       <AccountEdit
         v-bind="account"
-        :tags="account.tags && account.tags.map(x => x.id)"
+        :is-native="account.kind === 'Native'"
+        :tags="account.tags && account.tags.map(x => x._id)"
         @edit-account="updateAccountData"
         @close-dialogue="closeUpdateAccount"
       />

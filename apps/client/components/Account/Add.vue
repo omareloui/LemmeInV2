@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AddAccount, AddAccountReceivedData } from "types";
+import type { ClientAddAccount as AddAccount, AddAccountFormData } from "types";
 import { useVaultStore } from "store/useVault.js";
 
 const props = withDefaults(defineProps<{ password?: string }>(), {
@@ -25,7 +25,7 @@ const SITE_PATTERN =
 
 async function addAccount(receivedOptions: unknown) {
   const { app, password, accountIdentifier, site, note, tags } =
-    receivedOptions as AddAccountReceivedData;
+    receivedOptions as AddAccountFormData;
   const options: AddAccount = {
     app,
     password: password.value,

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { PasswordScore } from "types";
-
 const PROGRESS_STYLES = ["line", "dot"] as const;
 type ProgressStyle = typeof PROGRESS_STYLES[number];
 

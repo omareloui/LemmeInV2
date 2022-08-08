@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTagsStore } from "~~/store/useTags";
 
-import type { Tag } from "~~/types";
+import type { ClientTag as Tag } from "~~/types";
 
 const route = useRoute();
 
@@ -71,7 +71,7 @@ useMatchSearchQuery(searchQuery);
       <TransitionGroup name="list" class="tags" tag="div">
         <Tag
           v-for="tag in searchQuery ? searchResult.tags : tagsStore.tags"
-          :key="tag.id"
+          :key="tag._id"
           class="tag"
           v-bind="{ tag }"
           @edit-tag="editTag"

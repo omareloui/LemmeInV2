@@ -93,6 +93,15 @@ export interface ClientUpdateAccount extends ClientAddAccount {
   id: string;
 }
 
+export interface AddAccountFormData {
+  app: string;
+  password: { value: string; isNative: boolean };
+  accountIdentifier?: string;
+  site?: string;
+  note?: string;
+  tags?: string[];
+}
+
 export type PasswordStrengthIDs = 0 | 1 | 2 | 3;
 export type PasswordDiversity = "lowercase" | "uppercase" | "symbol" | "number";
 export type PasswordStrengthValues = "compromised" | "weak" | "okay" | "safe";

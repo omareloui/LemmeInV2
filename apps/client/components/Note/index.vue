@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Note } from "types";
+import type { ClientNote as Note } from "types";
 
 const props = defineProps<{ note: Note }>();
 
@@ -7,7 +7,7 @@ const hasTags = props.note.tags && props.note.tags.length > 0;
 
 function goToNote() {
   const router = useRouter();
-  router.push(`notes/${props.note.id}`);
+  router.push(`notes/${props.note._id}`);
 }
 </script>
 
@@ -37,7 +37,7 @@ function goToNote() {
       <div v-if="hasTags" class="note__tags">
         <ChipTag
           v-for="tag in note.tags"
-          :key="tag.id"
+          :key="tag._id"
           v-bind="{ tag }"
           no-remove-button
           invert

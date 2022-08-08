@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import type { Account } from "types";
+import type { ClientAccount as Acc } from "types";
 import { useVaultStore } from "store/useVault";
+
+type Account = Acc<"Native" | "OAuthed">;
 
 const vaultStore = useVaultStore();
 
@@ -51,7 +53,7 @@ useMatchSearchQuery(searchQuery);
           v-for="account in searchQuery
             ? searchResult.accounts
             : vaultStore.accounts"
-          :key="account.id"
+          :key="account._id"
         >
           <AccountPreview v-bind="{ account }" include-strength />
         </div>

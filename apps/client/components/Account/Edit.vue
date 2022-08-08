@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { AddAccountReceivedData, UpdateAccount, Account } from "types";
+import {
+  AddAccountFormData,
+  ClientUpdateAccount as UpdateAccount,
+  ClientAccount as Acc,
+} from "types";
 import { useVaultStore } from "~~/store/useVault.js";
+
+type Account = Acc<"Native" | "OAuthed">;
 
 const props = withDefaults(
   defineProps<{
-    id: string;
+    // eslint-disable-next-line vue/prop-name-casing
+    _id: string;
     app: string;
     isNative: boolean;
-    password: Account | string;
+    password: Acc<"Native"> | string;
     accountIdentifier?: string;
     note?: string;
     site?: string;
@@ -30,7 +37,7 @@ const formData = reactive({
   app: props.app,
   password: (props.isNative
     ? props.password
-    : (props.password as Account).id) as string,
+    : (props.password as Account)._id) as string,
   accountIdentifier: props.accountIdentifier ?? "",
   site: props.site ?? "",
   tags: props.tags || [],
@@ -45,9 +52,9 @@ const SITE_PATTERN =
 
 async function editAccount(receivedOptions: unknown) {
   const { app, password, accountIdentifier, site, note, tags } =
-    receivedOptions as AddAccountReceivedData;
+    receivedOptions as AddAccountFormData;
   const options: UpdateAccount = {
-    id: props.id,
+    id: props._id,
     app,
     password: password.value,
     isNative: password.isNative,
@@ -97,6 +104,7 @@ async function editAccount(receivedOptions: unknown) {
         no-icon
         :min-length="3"
         has-o-auth
+        :is-o-auth-default="!isNative"
         show-password-strength
         can-generate-random
       />
