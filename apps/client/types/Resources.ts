@@ -3,7 +3,7 @@ import { Tag } from "./Tag";
 import { Account } from "./Account";
 
 export interface Resources {
-  accounts: Account[];
+  accounts: Account<"Native" | "OAuthed">[];
   tags: Tag[];
   notes: Note[];
 }

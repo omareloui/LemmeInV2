@@ -3,3 +3,4 @@ export * from "./auth.controller";
 export * from "./tag.controller";
 export * from "./note.controller";
 export * from "./account.controller";
+export * from "./resources.controller";
