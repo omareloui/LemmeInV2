@@ -36,7 +36,7 @@ export class AccountController {
   public static async getAllMine(
     userId: string,
   ): Promise<AccountInterface<"Native" | "OAuthed">[]> {
-    const accounts = await Account.find({ user: userId });
+    const accounts = await this.findAccounts({ user: userId });
     return this.populateAndSort(accounts, userId);
   }
 
@@ -44,15 +44,16 @@ export class AccountController {
     tagId: string,
     userId: string,
   ): Promise<AccountInterface<"Native" | "OAuthed">[]> {
-    const accounts = await Account.find({ user: userId, tags: tagId });
-    return this.populateAndSort(accounts, userId);
+    const nAccounts = await NativeAccount.find({ user: userId, tags: tagId });
+    const oAccounts = await OAuthedAccount.find({ user: userId, tags: tagId });
+    return this.populateAndSort([...nAccounts, ...oAccounts], userId);
   }
 
   public static async getOneMine(
     id: string,
     userId: string,
   ): Promise<AccountInterface<"Native" | "OAuthed">> {
-    const account = await Account.findOne({ _id: id, user: userId });
+    const account = await this.findAccount({ _id: id, user: userId });
     if (!account)
       throw createError({
         message: "Can't find the account.",
@@ -89,7 +90,9 @@ export class AccountController {
     { app, password, accountIdentifier, note, site, tags, kind }: UpdateAccount,
     userId: string,
   ) {
-    const originalDoc = await Account.findOne({ _id: id, user: userId });
+    const oDoc = await OAuthedAccount.findOne({ _id: id, user: userId });
+    const nDoc = await NativeAccount.findOne({ _id: id, user: userId });
+    const originalDoc = oDoc || nDoc;
     if (!originalDoc)
       throw createError({
         message: "Can't find the account to update.",
@@ -126,10 +129,10 @@ export class AccountController {
               statusCode: 400,
             });
           // Make sure it exists
-          const passwordToUpdateTo = await Account.findOne({
+          const passwordToUpdateTo = (await NativeAccount.findOne({
             _id: password,
             user: userId,
-          });
+          })) as AccountInterface<"Native">;
           if (!passwordToUpdateTo)
             throw createError({
               message: "Can't find the password you want to update to",
@@ -188,10 +191,15 @@ export class AccountController {
     if (Object.keys(fieldsToUpdate).length === 0)
       return this.populate(originalDoc, userId);
 
-    const newAccount = await Account.findOneAndUpdate(
-      { _id: id, user: userId },
-      fieldsToUpdate,
-    );
+    const updateQueryOptions = [{ _id: id, user: userId }, fieldsToUpdate];
+    let newAccount:
+      | (DehydratedAccount<"Native" | "OAuthed"> & {
+          _id: Types.ObjectId;
+        })
+      | null;
+    if (originalDoc.kind === "Native")
+      newAccount = await NativeAccount.findOneAndUpdate(updateQueryOptions);
+    else newAccount = await OAuthedAccount.findOneAndUpdate(updateQueryOptions);
     if (!newAccount)
       throw createError({
         message: "Can't find the account to update.",
@@ -234,11 +242,56 @@ export class AccountController {
     return true;
   }
 
+  private static async findAccounts(
+    query: Partial<
+      Omit<DehydratedAccount<"Native" | "OAuthed">, "_id" | "user" | "tags"> & {
+        _id: string;
+        user?: string;
+        tags?: string[];
+      }
+    >,
+  ) {
+    const accounts = await Account.find(query);
+    // const nAccounts = await NativeAccount.find(query);
+    // const oAccounts = await OAuthedAccount.find(query);
+    return accounts;
+    // return [...nAccounts, ...oAccounts];
+  }
+
+  private static async findAccount(
+    query: Partial<
+      Omit<DehydratedAccount<"Native" | "OAuthed">, "_id" | "user" | "tags"> & {
+        _id: string;
+        user?: string;
+        tags?: string[];
+      }
+    >,
+  ) {
+    const nAccount = await NativeAccount.findOne(query);
+    if (nAccount) return nAccount;
+    const oAccount = await OAuthedAccount.findOne(query);
+    return oAccount;
+  }
+
   private static async populate(
     doc: DehydratedAccount<"Native" | "OAuthed"> & { _id: Types.ObjectId },
     userId: string,
   ): Promise<AccountInterface<"Native" | "OAuthed">> {
-    const result: Record<string, unknown> = { ...doc };
+    const result: Record<string, unknown> = {
+      _id: doc._id,
+      user: doc.user,
+      password: doc.password,
+      app: doc.app,
+      accountIdentifier: doc.accountIdentifier,
+      site: doc.site,
+      note: doc.note,
+      tags: doc.tags,
+      lastUsed: doc.lastUsed,
+      lastPasswordUpdate: doc.lastPasswordUpdate,
+      kind: doc.kind,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    };
     if (doc.kind === "OAuthed")
       result.password = (await this.getOneMine(
         doc.password.toString(),

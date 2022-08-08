@@ -21,7 +21,7 @@ export default defineNuxtPlugin(async () => {
     }
     // TODO:
     // await authStore.setKeyFromCookie();
-    // await resourcesStore.load();
+    await resourcesStore.load();
   } catch (e) {
     shouldRemoveTokens = true;
   }

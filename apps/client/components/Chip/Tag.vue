@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Tag } from "types";
+import { ClientTag as Tag } from "types";
 
 withDefaults(
   defineProps<{

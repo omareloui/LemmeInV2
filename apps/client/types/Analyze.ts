@@ -1,4 +1,4 @@
-import type { Account, PasswordStrengthValues } from "./Account";
+import type { ClientAccount as Account, PasswordStrengthValues } from "types";
 
 export type DuplicatedPasswords = {
   [plainPassword: string]: { passwordsId: string[] };
@@ -6,13 +6,13 @@ export type DuplicatedPasswords = {
 
 export interface AnalyzeValue {
   counter: number;
-  accounts: Account[];
+  accounts: Account<"Native">[];
 }
 
 export type AnalyzeKeys = PasswordStrengthValues | "outdated" | "duplicated";
 
 export type BuildAnalyzesOptions = {
-  [key in AnalyzeKeys]: Account[];
+  [key in AnalyzeKeys]: Account<"Native">[];
 } & {
   totalAccounts: number;
 };

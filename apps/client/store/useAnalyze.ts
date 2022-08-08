@@ -6,7 +6,7 @@ import getDatePrevMonths from "~~/assets/utils/getDatePrevMonths";
 import type {
   Analyze,
   AnalyzeKeys,
-  Account,
+  ClientAccount as Account,
   BuildAnalyzesOptions,
   DuplicatedPasswords,
   PasswordStrengthValues,
@@ -14,12 +14,12 @@ import type {
 
 export const useAnalyzeStore = defineStore("analyze", {
   state: () => ({
-    duplicated: { counter: 0, accounts: [] as Account[] },
-    outdated: { counter: 0, accounts: [] as Account[] },
-    safe: { counter: 0, accounts: [] as Account[] },
-    okay: { counter: 0, accounts: [] as Account[] },
-    weak: { counter: 0, accounts: [] as Account[] },
-    compromised: { counter: 0, accounts: [] as Account[] },
+    duplicated: { counter: 0, accounts: [] as Account<"Native">[] },
+    outdated: { counter: 0, accounts: [] as Account<"Native">[] },
+    safe: { counter: 0, accounts: [] as Account<"Native">[] },
+    okay: { counter: 0, accounts: [] as Account<"Native">[] },
+    weak: { counter: 0, accounts: [] as Account<"Native">[] },
+    compromised: { counter: 0, accounts: [] as Account<"Native">[] },
     totalAccounts: 0,
     score: 0,
 
@@ -34,24 +34,23 @@ export const useAnalyzeStore = defineStore("analyze", {
     },
 
     clearData(this) {
-      this.duplicated = { counter: 0, accounts: [] as Account[] };
-      this.outdated = { counter: 0, accounts: [] as Account[] };
-      this.safe = { counter: 0, accounts: [] as Account[] };
-      this.okay = { counter: 0, accounts: [] as Account[] };
-      this.weak = { counter: 0, accounts: [] as Account[] };
-      this.compromised = { counter: 0, accounts: [] as Account[] };
+      this.duplicated = { counter: 0, accounts: [] };
+      this.outdated = { counter: 0, accounts: [] };
+      this.safe = { counter: 0, accounts: [] };
+      this.okay = { counter: 0, accounts: [] };
+      this.weak = { counter: 0, accounts: [] };
+      this.compromised = { counter: 0, accounts: [] };
     },
 
     setAccountStrength({
       account,
       strength,
     }: {
-      account: Account;
+      account: Account<"Native">;
       strength: PasswordStrengthValues;
     }) {
-      if (!account.isNative) return;
       const wantedStateStrength = this[strength];
-      wantedStateStrength.accounts.push(account);
+      wantedStateStrength.accounts.push(account as Account<"Native">);
       wantedStateStrength.counter += 1;
       this.totalAccounts += 1;
     },
@@ -61,14 +60,14 @@ export const useAnalyzeStore = defineStore("analyze", {
       oldStrength,
       strength,
     }: {
-      account: Account;
+      account: Account<"Native">;
       oldStrength: PasswordStrengthValues;
       strength: PasswordStrengthValues;
     }) {
-      if (!account.isNative || oldStrength === strength) return;
+      if (oldStrength === strength) return;
       // Remove from the old strength
       this[oldStrength].accounts = this[oldStrength].accounts.filter(
-        x => x.id !== account.id,
+        x => x._id !== account._id,
       );
       this[oldStrength].counter -= 1;
       // Add to the new strength
@@ -76,7 +75,7 @@ export const useAnalyzeStore = defineStore("analyze", {
       this[strength].counter += 1;
     },
 
-    setAsOutdated(account: Account) {
+    setAsOutdated(account: Account<"Native">) {
       const { outdated } = this;
       outdated.accounts.push(account);
       outdated.counter += 1;
@@ -86,12 +85,12 @@ export const useAnalyzeStore = defineStore("analyze", {
       account,
       duplicatedWith,
     }: {
-      account: Account;
-      duplicatedWith: Account;
+      account: Account<"Native">;
+      duplicatedWith: Account<"Native">;
     }) {
       const { duplicated } = this;
       const alreadyExistingDuplication = duplicated.accounts.find(
-        x => x.id === duplicatedWith.id,
+        x => x._id === duplicatedWith._id,
       );
       if (!alreadyExistingDuplication) {
         duplicated.accounts.push(duplicatedWith);
@@ -109,13 +108,13 @@ export const useAnalyzeStore = defineStore("analyze", {
       account,
       strength,
     }: {
-      account: Account;
+      account: Account<"Native">;
       strength: PasswordStrengthValues;
     }) {
       // Remove from its strength
       const wantedState = this[strength];
       const accountIndexToRemove = wantedState.accounts.findIndex(
-        x => x.id === account.id,
+        x => x._id === account._id,
       );
       if (accountIndexToRemove > -1) {
         wantedState.accounts.splice(accountIndexToRemove, 1);
@@ -126,9 +125,9 @@ export const useAnalyzeStore = defineStore("analyze", {
       this.totalAccounts -= 1;
     },
 
-    removeFromOutdated(account: Account) {
+    removeFromOutdated(account: Account<"Native">) {
       const accountIndexToRemove = this.outdated.accounts.findIndex(
-        x => x.id === account.id,
+        x => x._id === account._id,
       );
       if (accountIndexToRemove > -1) {
         this.outdated.accounts.splice(accountIndexToRemove, 1);
@@ -136,9 +135,9 @@ export const useAnalyzeStore = defineStore("analyze", {
       }
     },
 
-    removeFromDuplicated(account: Account) {
+    removeFromDuplicated(account: Account<"Native">) {
       const accountToRemove = this.duplicated.accounts.find(
-        x => x.id === account.id,
+        x => x._id === account._id,
       );
       if (accountToRemove) {
         const allSamePasswordAccounts = this.duplicated.accounts.filter(
@@ -148,7 +147,7 @@ export const useAnalyzeStore = defineStore("analyze", {
         // Remove the only provided account if it's duplicated with more than one account
         if (allSamePasswordAccounts.length > 2) {
           this.duplicated.accounts = this.duplicated.accounts.filter(
-            x => x.id !== account.id,
+            x => x._id !== account._id,
           );
           this.duplicated.counter -= 1;
         }
@@ -176,28 +175,30 @@ export const useAnalyzeStore = defineStore("analyze", {
         totalAccounts: vaultStore.accounts.length,
       } as BuildAnalyzesOptions;
 
-      const nativeAccounts = vaultStore.accounts.filter(x => x.isNative);
+      const nativeAccounts = vaultStore.accounts.filter(
+        x => x.kind === "Native",
+      ) as Account<"Native">[];
 
       const duplications = await this.setDuplicatedPasswords(nativeAccounts);
 
-      const checkIfDuplicated = (account: Account) =>
+      const checkIfDuplicated = (account: Account<"Native">) =>
         duplications[account.password as string].passwordsId.length > 1;
-      const checkIfOutdated = (account: Account) =>
+      const checkIfOutdated = (account: Account<"Native">) =>
         Number(account.lastPasswordUpdate) <=
         Number(getDatePrevMonths(this.MAX_OUTDATED_MONTHS));
 
       const checkForStrength = (
-        account: Account,
+        account: Account<"Native">,
         strength: PasswordStrengthValues,
       ) => $getPasswordStrength(account.password as string).value === strength;
 
-      const checkIfSafe = (account: Account) =>
+      const checkIfSafe = (account: Account<"Native">) =>
         checkForStrength(account, "safe");
-      const checkIfOkay = (account: Account) =>
+      const checkIfOkay = (account: Account<"Native">) =>
         checkForStrength(account, "okay");
-      const checkIfWeak = (account: Account) =>
+      const checkIfWeak = (account: Account<"Native">) =>
         checkForStrength(account, "weak");
-      const checkIfCompromised = (account: Account) =>
+      const checkIfCompromised = (account: Account<"Native">) =>
         checkForStrength(account, "compromised");
 
       analyzed.duplicated = nativeAccounts.filter(checkIfDuplicated);
@@ -216,19 +217,19 @@ export const useAnalyzeStore = defineStore("analyze", {
       this.calculateScore();
     },
 
-    setDuplicatedPasswords(accounts: Account[]) {
+    setDuplicatedPasswords(accounts: Account<"Native" | "OAuthed">[]) {
       const setDuplicatedPasswords = (
         prev: DuplicatedPasswords,
-        cur: Account,
+        cur: Account<"Native" | "OAuthed">,
       ) => {
-        if (!cur.isNative) return prev;
+        if (cur.kind && cur.kind === "OAuthed") return prev;
         const pass = cur.password as string;
         const currentPasswordsIds = prev[pass]?.passwordsId;
         // eslint-disable-next-line no-param-reassign
         prev[pass] = {
           passwordsId: currentPasswordsIds
-            ? [...currentPasswordsIds, cur.id.toString()]
-            : [cur.id.toString()],
+            ? [...currentPasswordsIds, cur._id.toString()]
+            : [cur._id.toString()],
         };
         return prev;
       };
@@ -256,35 +257,45 @@ export const useAnalyzeStore = defineStore("analyze", {
       this.setScore(Math.floor((totalScore / nonOAuthAccountsTotal) * 100));
     },
 
-    addAccount(account: Account) {
+    addAccount(account: Account<"Native" | "OAuthed">) {
       const { $getPasswordStrength } = useNuxtApp();
       const vaultStore = useVaultStore();
-      if (!account.isNative) return;
+      if (account.kind === "OAuthed") return;
       // Set its strength
       const pass = account.password as string;
       const strength = $getPasswordStrength(pass).value;
-      this.setAccountStrength({ account, strength });
+      this.setAccountStrength({
+        account: account as Account<"Native">,
+        strength,
+      });
       // Set if it's outdated
       const maxOldDate = getDatePrevMonths(this.MAX_OUTDATED_MONTHS);
-      if (account.lastPasswordUpdate < maxOldDate) this.setAsOutdated(account);
+      if (account.lastPasswordUpdate < maxOldDate)
+        this.setAsOutdated(account as Account<"Native">);
       // Set if duplicated
       const duplicatedWith = vaultStore.accounts.find(
         x =>
-          x.isNative && x.id !== account.id && x.password === account.password,
+          x.kind === "Native" &&
+          x._id !== account._id &&
+          x.password === account.password,
       );
-      if (duplicatedWith) this.setAsDuplicated({ account, duplicatedWith });
+      if (duplicatedWith)
+        this.setAsDuplicated({
+          account: account as Account<"Native">,
+          duplicatedWith: duplicatedWith as Account<"Native">,
+        });
       // Recalculate the score
       this.calculateScore();
     },
 
-    editAccount(account: Account) {
+    editAccount(account: Account<"Native" | "OAuthed">) {
       const { $getPasswordStrength } = useNuxtApp();
       const vaultStore = useVaultStore();
-      if (!account.isNative) {
-        this.removeFromAllWithId(account.id);
+      if (account.kind === "OAuthed") {
+        this.removeFromAllWithId(account._id);
         return;
       }
-      const findAccount = (x: Account) => x.id === account.id;
+      const findAccount = (x: Account<"Native">) => x._id === account._id;
       // Get the account and its old strength
       let oldStrength = "safe" as PasswordStrengthValues;
       let oldAccount = this.safe.accounts.find(findAccount);
@@ -306,11 +317,14 @@ export const useAnalyzeStore = defineStore("analyze", {
       // If there wasn't an old account (meaning it changed from oAuth to native)
       //  then add it as a new one
       if (!oldAccount)
-        this.setAccountStrength({ account, strength: strength.value });
+        this.setAccountStrength({
+          account: account as Account<"Native">,
+          strength: strength.value,
+        });
       // Else update it
       else
         this.updateAccountStrength({
-          account,
+          account: account as Account<"Native">,
           strength: strength.value,
           oldStrength,
         });
@@ -319,33 +333,42 @@ export const useAnalyzeStore = defineStore("analyze", {
       if (
         account.lastPasswordUpdate < getDatePrevMonths(this.MAX_OUTDATED_MONTHS)
       )
-        this.removeFromOutdated(account);
+        this.removeFromOutdated(account as Account<"Native">);
 
       // Duplicated
-      this.removeFromDuplicated(account);
+      this.removeFromDuplicated(account as Account<"Native">);
       const duplicatedWith = vaultStore.accounts.find(
         x =>
-          x.isNative && x.id !== account.id && x.password === account.password,
+          x.kind === "Native" &&
+          x._id !== account._id &&
+          x.password === account.password,
       );
-      if (duplicatedWith) this.setAsDuplicated({ account, duplicatedWith });
+      if (duplicatedWith)
+        this.setAsDuplicated({
+          account: account as Account<"Native">,
+          duplicatedWith: duplicatedWith as Account<"Native">,
+        });
 
       // Recalculate the score
       this.calculateScore();
     },
 
-    removeAccount(account: Account) {
-      if (!account.isNative) return;
+    removeAccount(account: Account<"Native" | "OAuthed">) {
+      if (account.kind === "OAuthed") return;
       this.removeFromAll(account);
       this.calculateScore();
     },
 
-    removeFromAll(account: Account) {
-      if (!account.isNative) return;
+    removeFromAll(account: Account<"Native" | "OAuthed">) {
+      if (account.kind === "OAuthed") return;
       const { $getPasswordStrength } = useNuxtApp();
       const strength = $getPasswordStrength(account.password as string);
-      this.removeFromStrength({ account, strength: strength.value });
-      this.removeFromDuplicated(account);
-      this.removeFromOutdated(account);
+      this.removeFromStrength({
+        account: account as Account<"Native">,
+        strength: strength.value,
+      });
+      this.removeFromDuplicated(account as Account<"Native">);
+      this.removeFromOutdated(account as Account<"Native">);
     },
 
     async removeFromAllWithId(accountId: string) {
@@ -360,7 +383,7 @@ export const useAnalyzeStore = defineStore("analyze", {
         ...this.okay.accounts,
         ...this.weak.accounts,
         ...this.compromised.accounts,
-      ].find(x => x.id === accountId);
+      ].find(x => x._id === accountId);
     },
 
     buildResult({

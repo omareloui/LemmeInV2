@@ -1,6 +1,6 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 
-import type { Note, AddNote, UpdateNote, Optional } from "types";
+import type { ClientNote as Note, AddNote, UpdateNote, Optional } from "types";
 
 import { useAuthStore } from "store/useAuth";
 
@@ -19,7 +19,7 @@ export const useNotesStore = defineStore("notes", {
     },
 
     updateNoteCache(note: Note) {
-      const noteIndex = this.notes.findIndex(x => x.id === note.id);
+      const noteIndex = this.notes.findIndex(x => x._id === note._id);
       if (noteIndex === -1) throw new Error("Can't find the note to update");
       this.notes[noteIndex] = note;
     },
@@ -29,14 +29,14 @@ export const useNotesStore = defineStore("notes", {
     },
 
     removeNote(noteId: string) {
-      this.notes = this.notes.filter(x => x.id !== noteId);
+      this.notes = this.notes.filter(x => x._id !== noteId);
     },
 
     removeTagFromNotes(tagId: string) {
       this.notes = this.notes.map(note => {
         const updatedNote = note;
         if (updatedNote.tags)
-          updatedNote.tags = updatedNote.tags.filter(x => x.id !== tagId);
+          updatedNote.tags = updatedNote.tags.filter(x => x._id !== tagId);
         return updatedNote;
       });
     },
@@ -49,7 +49,7 @@ export const useNotesStore = defineStore("notes", {
     },
 
     async getNote(noteId: string) {
-      const noteFromStore = this.notes.find(x => x.id === noteId);
+      const noteFromStore = this.notes.find(x => x._id === noteId);
       if (noteFromStore) return noteFromStore;
       const note = (await useServerFetch(`/notes/${noteId}`)) as Note;
       const dNote = await this.decryptNote(note);

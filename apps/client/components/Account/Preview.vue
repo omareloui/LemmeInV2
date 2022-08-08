@@ -2,12 +2,12 @@
 import getIcon from "utils/getIcon";
 import capitalize from "utils/capitalize";
 
-import type { Account } from "types";
+import type { ClientAccount as Account } from "types";
 import { useVaultStore } from "~~/store/useVault.js";
 
 const props = withDefaults(
   defineProps<{
-    account: Account;
+    account: Account<"Native" | "OAuthed">;
     tagsToShow?: number;
     noDate?: boolean;
     noTags?: boolean;
@@ -27,7 +27,7 @@ const props = withDefaults(
 
 const icon = getIcon(props.account);
 
-const showStrength = props.includeStrength && props.account.isNative;
+const showStrength = props.includeStrength && props.account.kind === "Native";
 
 function copyAccId() {
   const { $notify, $copy } = useNuxtApp();
@@ -37,7 +37,7 @@ function copyAccId() {
 
 function copy() {
   const vaultStore = useVaultStore();
-  vaultStore.copy(props.account.id);
+  vaultStore.copy(props.account._id);
 }
 </script>
 
@@ -68,7 +68,7 @@ function copy() {
         />
 
         <div class="info__text-info">
-          <LinkBase class="app" :to="`/vault/${account.id}`">
+          <LinkBase class="app" :to="`/vault/${account._id}`">
             {{ account.app }}
           </LinkBase>
           <div v-if="account.accountIdentifier" class="account-identifier">
@@ -88,7 +88,7 @@ function copy() {
         </div>
 
         <Icon
-          v-if="account.isNative && !noCopyPassword"
+          v-if="account.kind === 'Native' && !noCopyPassword"
           class="info__copy"
           name="Copy"
           size="25px"
@@ -104,8 +104,8 @@ function copy() {
       >
         <LinkBase
           v-for="tag in [...account.tags!].splice(0, tagsToShow)"
-          :key="tag.id"
-          :to="`/vault?tags=${tag.id}`"
+          :key="tag._id"
+          :to="`/vault?tags=${tag._id}`"
         >
           <ChipTag
             class="tags__tag"

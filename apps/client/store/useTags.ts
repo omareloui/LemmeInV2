@@ -6,7 +6,7 @@ import { useNotesStore } from "store/useNotes";
 
 import getRandomColor from "~~/assets/utils/getRandomTagColor";
 
-import type { Tag, AddTag, UpdateTag, Optional } from "~~/types";
+import type { ClientTag as Tag, AddTag, UpdateTag, Optional } from "~~/types";
 
 export const useTagsStore = defineStore("tags", {
   state: () => ({
@@ -23,7 +23,7 @@ export const useTagsStore = defineStore("tags", {
     },
 
     updateTagCache(tag: Tag) {
-      const tagIndex = this.tags.findIndex(x => x.id === tag.id);
+      const tagIndex = this.tags.findIndex(x => x._id === tag._id);
       if (tagIndex === -1) throw new Error("Can't find the tag to update");
       this.tags[tagIndex] = tag;
     },
@@ -33,7 +33,7 @@ export const useTagsStore = defineStore("tags", {
     },
 
     removeTag(tagId: string) {
-      this.tags = this.tags.filter(x => x.id !== tagId);
+      this.tags = this.tags.filter(x => x._id !== tagId);
     },
 
     async getTags() {

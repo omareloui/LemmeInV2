@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import type { ClientAccount as Acc } from "types";
+
 import { useVaultStore } from "~~/store/useVault";
 import InputBase from "./Base.vue";
 import InputSelect from "./Select.vue";
+
+type Account = Acc<"Native" | "OAuthed">;
 
 const vaultStore = useVaultStore();
 const inputRef = ref<
@@ -62,6 +66,13 @@ const errorMessage = computed(() => inputRef.value?.errorMessage || "");
 const isErred = computed(() => !!errorMessage);
 const hasOtherPasswords = computed(() => vaultStore.accounts.length > 0);
 const shownIcon = computed(() => (isShown.value ? "EyeClosed" : "Eye"));
+
+const selectOptions =
+  vaultStore.accounts.map(a => {
+    const r = a as Account & { id: string };
+    r.id = r._id;
+    return r;
+  }) || [];
 
 function generate() {
   content.value = usePasswordGenerator();
@@ -154,7 +165,7 @@ defineExpose({
         :identifier="identifier"
         primary-key="app"
         default-button-text="Select a password"
-        :options="vaultStore.accounts"
+        :options="selectOptions"
         is-searchable
       />
     </Transition>

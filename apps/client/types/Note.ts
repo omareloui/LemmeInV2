@@ -1,7 +1,6 @@
 import type { Types } from "mongoose";
 
-import { User } from "./User";
-import { Tag } from "./Tag";
+import { User, ClientUser, Tag, ClientTag } from "types";
 
 export interface DehydratedNote {
   title?: string;
@@ -18,6 +17,16 @@ export interface Note {
   body?: string;
   tags?: Tag[];
   user: User;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ClientNote {
+  _id: string;
+  title?: string;
+  body?: string;
+  tags?: ClientTag[];
+  user: ClientUser;
   createdAt: Date;
   updatedAt: Date;
 }

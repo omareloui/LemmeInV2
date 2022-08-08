@@ -140,11 +140,21 @@ export class NoteController {
   private static async populateTags<
     T extends NoteInterface | (DehydratedNote & { _id: Types.ObjectId }),
   >(doc: T, userId: string): Promise<NoteInterface> {
-    const note = doc as NoteInterface;
-    note.tags = await TagController.populateTags(
+    const tags = await TagController.populateTags(
       doc.tags?.map(x => x._id.toString()) || [],
       userId,
     );
+
+    const note = {
+      _id: doc._id,
+      title: doc.title,
+      body: doc.body,
+      tags,
+      user: doc.user,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    } as NoteInterface;
+
     return note;
   }
 }

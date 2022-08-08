@@ -28,13 +28,18 @@ export const NativeAccount = Account.discriminator<DehydratedAccount<"Native">>(
     options,
   ),
 );
-export const OAuthedAccount = Account.discriminator(
+export const OAuthedAccount = Account.discriminator<
+  DehydratedAccount<"OAuthed">
+>(
   "OAuthed",
-  new Schema<DehydratedAccount<"OAuthed">>({
-    password: {
-      type: Schema.Types.ObjectId,
-      ref: "AccountSchema",
-      required: true,
+  new Schema<DehydratedAccount<"OAuthed">>(
+    {
+      password: {
+        type: Schema.Types.ObjectId,
+        ref: "AccountSchema",
+        required: true,
+      },
     },
-  }),
+    options,
+  ),
 );

@@ -6,7 +6,7 @@ import { useAnalyzeStore } from "store/useAnalyze";
 import { useTagsStore } from "store/useTags";
 import { useNotesStore } from "store/useNotes";
 
-import type { Resources } from "~~/types";
+import type { ClientResources as Resources } from "types";
 
 export const useResourcesStore = defineStore("resources", {
   state: () => ({}),
@@ -16,22 +16,15 @@ export const useResourcesStore = defineStore("resources", {
   actions: {
     async load() {
       const authStore = useAuthStore();
+      if (!authStore.isSigned) return;
+
       const vaultStore = useVaultStore();
       const analyzeStore = useAnalyzeStore();
       const notesStore = useNotesStore();
       const tagsStore = useTagsStore();
 
-      if (!authStore.isSigned) return;
-
-      // FIXME:
-      // const resources = (await useServerFetch("/resources")) as Resources;
-
-      const token = await authStore.getToken();
-      const { accounts, notes, tags } = (await $fetch(
-        "http://localhost:8000/resources",
-        {
-          headers: { authorization: `Bearer ${token}` },
-        },
+      const { accounts, notes, tags } = (await useTokenedFetch(
+        "/api/resources",
       )) as Resources;
 
       await vaultStore.decryptAndSetAccounts(accounts);

@@ -1,6 +1,6 @@
 import z from "zod";
 import { TAG_NAME_REGEX } from "server/utils";
-import tagColors from "config/tag-colors";
+import tagColors from "~~/config/tag-colors";
 import { mongoId } from "./utils";
 
 const createAndUpdateValidationBody = {

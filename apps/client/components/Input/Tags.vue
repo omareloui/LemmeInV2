@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Fuse from "fuse.js";
-import { Tag } from "types";
+import { ClientTag as Tag } from "types";
 import { useTagsStore } from "~~/store/useTags.js";
 
 type TagId = string;
@@ -47,10 +47,10 @@ const couldCreate = computed(
     query.value && tagsStore.tags.findIndex(x => x.name === query.value) === -1,
 );
 const selectedTags = computed(() =>
-  content.value.map(tagId => tagsStore.tags.find(x => x && x.id === tagId)!),
+  content.value.map(tagId => tagsStore.tags.find(x => x && x._id === tagId)!),
 );
 const tagsToView = computed(() =>
-  tagsStore.tags.filter(x => content.value.findIndex(y => y === x.id) === -1),
+  tagsStore.tags.filter(x => content.value.findIndex(y => y === x._id) === -1),
 );
 
 const tagsFuse = new Fuse(tagsToView.value, { keys: ["name"] });
@@ -80,13 +80,13 @@ function onBlur() {
 }
 
 function removeTag(tag: Tag) {
-  content.value = content.value.filter(x => x !== tag.id);
+  content.value = content.value.filter(x => x !== tag._id);
 }
 
 function selectTag(tag: Tag) {
   clearQuery();
   clearError();
-  content.value = [...content.value, tag.id];
+  content.value = [...content.value, tag._id];
   focusOnSearch();
 }
 
@@ -147,7 +147,7 @@ defineExpose({ errorMessage, isErred, validate });
         <TransitionGroup name="chips" tag="span" class="chips">
           <ChipTag
             v-for="tag in selectedTags"
-            :key="tag.id"
+            :key="tag._id"
             class="chips__chip"
             :tag="tag"
             @remove-tag="removeTag"
@@ -196,7 +196,7 @@ defineExpose({ errorMessage, isErred, validate });
           <TransitionGroup name="input-select-search" tag="div">
             <div
               v-for="tag in query ? searchResult : tagsToView"
-              :key="tag.id"
+              :key="tag._id"
               class="tag"
               :style="{ '--color': `var(--clr-${tag.color})` }"
               tabindex="0"

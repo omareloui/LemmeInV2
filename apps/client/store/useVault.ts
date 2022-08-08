@@ -5,9 +5,20 @@ import _ from "lodash";
 import { useAuthStore } from "store/useAuth";
 import { useAnalyzeStore } from "store/useAnalyze";
 
-import { AddAccount, Account, UpdateAccount, Optional } from "~~/types";
+import {
+  ClientAccount as Acc,
+  ClientAddAccount as AddAccount,
+  AddAccount as ServerAddAccount,
+  ClientUpdateAccount as UpdateAccount,
+  UpdateAccount as ServerUpdateAccount,
+  ClientTag as Tag,
+  Optional,
+} from "types";
 
 const { take } = _;
+
+type Account = Acc<"Native" | "OAuthed">;
+type NativeAccount = Acc<"Native">;
 
 export const useVaultStore = defineStore("vault", {
   state: () => ({
@@ -47,32 +58,20 @@ export const useVaultStore = defineStore("vault", {
   },
 
   actions: {
-    setAccounts(accounts: Account[]) {
-      this.accounts = accounts;
-    },
-
     clearAccounts() {
       this.accounts = [];
     },
 
-    unshiftToAccounts(account: Account) {
-      this.accounts.unshift(account);
-    },
-
     updateLastUsedCache(accountId: string) {
       if (this.accounts.length === 0) return;
-      const account = this.accounts.find(x => x.id === accountId);
+      const account = this.accounts.find(x => x._id === accountId);
       if (!account)
         throw new Error("Can't find the account to update last used");
       account.lastUsed = new Date();
     },
 
-    removeAccount(accountId: string) {
-      this.accounts = this.accounts.filter(x => x.id !== accountId);
-    },
-
     updateAccountCache(account: Account) {
-      const accIndex = this.accounts.findIndex(x => x.id === account.id);
+      const accIndex = this.accounts.findIndex(x => x._id === account._id);
       if (accIndex === -1)
         throw new Error("Can't find the account to update last used");
       this.accounts[accIndex] = account;
@@ -81,7 +80,7 @@ export const useVaultStore = defineStore("vault", {
     removeTagFromAccounts(tagId: string) {
       this.accounts = this.accounts.map(acc => {
         if (acc.tags && acc.tags.length > 0)
-          acc.tags = acc.tags.filter(x => x.id !== tagId);
+          acc.tags = acc.tags.filter(x => x._id !== tagId);
         return acc;
       });
     },
@@ -101,7 +100,7 @@ export const useVaultStore = defineStore("vault", {
       const { $notify } = useNuxtApp();
       try {
         // Check first from cache
-        let acc = this.accounts.find(x => x.id === accountId);
+        let acc = this.accounts.find(x => x._id === accountId);
         // Get the account if not in cache
         if (!acc) {
           const account = (await useServerFetch(
@@ -120,10 +119,11 @@ export const useVaultStore = defineStore("vault", {
     async addAccount(options: AddAccount) {
       const { $notify } = useNuxtApp();
       const analyzeStore = useAnalyzeStore();
-      const eAccount = await this.encryptAccount(options);
-      const account = (await useServerFetch("/accounts", {
+      const kind = options.isNative ? "Native" : "OAuthed";
+      const eAccount = await this.encryptAccount({ ...options, kind });
+      const account = (await useTokenedFetch("/api/accounts", {
         method: "POST",
-        body: eAccount,
+        body: { ...eAccount, kind } as ServerAddAccount,
       })) as Account;
 
       account.app = options.app;
@@ -134,7 +134,7 @@ export const useVaultStore = defineStore("vault", {
 
       await analyzeStore.addAccount(account);
       $notify.success("Created account.");
-      this.unshiftToAccounts(account);
+      this.accounts.unshift(account);
     },
 
     async editAccount(options: UpdateAccount) {
@@ -144,11 +144,14 @@ export const useVaultStore = defineStore("vault", {
 
       const optionsForRequest = options as Optional<UpdateAccount, "id">;
       delete (optionsForRequest as { id?: string }).id;
-
-      const eAccount = await this.encryptAccount(optionsForRequest);
+      const kind = options.isNative ? "Native" : "OAuthed";
+      const eAccount = await this.encryptAccount({
+        ...optionsForRequest,
+        kind,
+      });
       const account = (await useServerFetch(`/accounts/${id}`, {
         method: "PUT",
-        body: eAccount,
+        body: { ...eAccount, kind } as ServerUpdateAccount,
       })) as Account;
 
       if (options.app) account.app = options.app;
@@ -191,7 +194,7 @@ export const useVaultStore = defineStore("vault", {
         const account = await this.getAccount(accountId);
         await analyzeStore.removeAccount(account as Account);
 
-        this.removeAccount(accountId);
+        this.accounts = this.accounts.filter(x => x._id !== accountId);
         $notify.success("Deleted account successfully");
         if (goToVaultAfter) router.push("/vault");
       } catch (e) {
@@ -199,7 +202,7 @@ export const useVaultStore = defineStore("vault", {
       }
     },
 
-    decryptAccount<T extends Account>(account: T): T {
+    decryptAccount<T extends Account | NativeAccount>(account: T): T {
       const { $cypher } = useNuxtApp();
       const acc = { ...account };
       acc.app = $cypher.decrypt(acc.app)!;
@@ -208,22 +211,27 @@ export const useVaultStore = defineStore("vault", {
       acc.site = acc.site && $cypher.decrypt(acc.site);
       acc.note = acc.note && $cypher.decrypt(acc.note);
 
-      if (acc.isNative) acc.password = $cypher.decrypt(acc.password as string)!;
-      else acc.password = this.decryptAccount(acc.password as Account);
+      if (acc.kind === "Native")
+        acc.password = $cypher.decrypt(acc.password as string)!;
+      else acc.password = this.decryptAccount(acc.password as NativeAccount);
 
       return acc;
     },
 
-    encryptAccount<T extends Account | AddAccount>(account: T): T {
+    encryptAccount<
+      T extends
+        | Account
+        | (UpdateAccount & { kind: "Native" | "OAuthed" })
+        | (AddAccount & { kind: "Native" | "OAuthed" }),
+    >(account: T): T {
       const { $cypher } = useNuxtApp();
       const encryptedAccount = {
         ...account,
         tags: [...(account.tags || [])],
       } as T;
-      const { app, password, accountIdentifier, site, note, isNative } =
-        account;
+      const { app, password, accountIdentifier, site, note, kind } = account;
       encryptedAccount.app = $cypher.encrypt(app)!;
-      if (isNative)
+      if (kind === "Native")
         encryptedAccount.password = $cypher.encrypt(password as string)!;
       encryptedAccount.accountIdentifier =
         accountIdentifier && $cypher.encrypt(accountIdentifier);
@@ -246,7 +254,7 @@ export const useVaultStore = defineStore("vault", {
       const { $copy } = useNuxtApp();
       // Get the account
       const acc = (await this.getAccount(accountId)) as Account;
-      if (!acc || !acc.isNative) return;
+      if (!acc || acc.kind === "OAuthed") return;
       // Update it's last used
       await this.updateLastUsed(accountId);
       // Copy the account
@@ -255,7 +263,7 @@ export const useVaultStore = defineStore("vault", {
 
     decryptAndSetAccounts(accounts: Account[]) {
       const dAccounts = accounts.map(x => this.decryptAccount(x));
-      this.setAccounts(dAccounts);
+      this.accounts = dAccounts;
     },
   },
 });

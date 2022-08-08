@@ -1,5 +1,5 @@
 import z from "zod";
-import { mongoId } from "./utils";
+import { contextId, mongoId } from "./utils";
 
 const createAndUpdateAccountBody = {
   app: z
@@ -21,6 +21,7 @@ const createAndUpdateAccountBody = {
 
 export const createAccountValidation = {
   body: z.object(createAndUpdateAccountBody),
+  context: contextId,
 };
 
 export const getAccountValidation = {

@@ -98,7 +98,14 @@ export class TagController {
     doc: DehydratedTag & { _id: Types.ObjectId },
     userId: string,
   ): Promise<TagInterface> {
-    const tag = { ...doc } as TagInterface;
+    const tag = {
+      _id: doc._id,
+      color: doc.color,
+      name: doc.name,
+      user: doc.user,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    } as TagInterface;
     const accounts = await AccountController.getMineWithTag(
       tag._id.toString(),
       userId,

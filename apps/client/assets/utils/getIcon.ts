@@ -1,7 +1,7 @@
-import { Account, Icon } from "~~/types";
+import { ClientAccount as Account, Icon } from "types";
 import icons, { NO_ICON } from "~~/config/icons";
 
-export default function getIcon(account: Account): Icon {
+export default function getIcon(account: Account<"Native" | "OAuthed">): Icon {
   const noIcon = icons.find(x => x.name === NO_ICON);
   let icon = icons
     .filter(x => x.name !== NO_ICON)

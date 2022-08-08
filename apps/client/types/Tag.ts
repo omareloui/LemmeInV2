@@ -1,5 +1,6 @@
 import type { Types } from "mongoose";
 
+import { ClientUser } from "types";
 import tagColor from "~~/config/tag-colors";
 
 export type TagColor = typeof tagColor[number];
@@ -23,5 +24,15 @@ export interface DehydratedTag {
 
 export interface Tag extends DehydratedTag {
   _id: Types.ObjectId;
+  accountsCount?: number;
+}
+
+export interface ClientTag {
+  _id: string;
+  name: string;
+  color: TagColor;
+  user: ClientUser | string;
+  createdAt: Date;
+  updatedAt: Date;
   accountsCount?: number;
 }

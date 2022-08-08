@@ -1,7 +1,6 @@
 import type { Types } from "mongoose";
 
-import type { User } from "./User";
-import type { Tag } from "./Tag";
+import type { User, ClientUser, Tag, ClientTag } from "types";
 
 type AccountKind = "Native" | "OAuthed";
 
@@ -46,14 +45,25 @@ export type Account<TKind extends AccountKind | undefined = undefined> = {
   kind?: TKind;
 };
 
-// export interface AddAccountReceivedData {
-//   app: string;
-//   password: { value: string; isNative: boolean };
-//   accountIdentifier?: string;
-//   site?: string;
-//   note?: string;
-//   tags?: string[];
-// }
+export type ClientAccount<TKind extends AccountKind> = {
+  _id: string;
+  user: ClientUser;
+  password: TKind extends "Native"
+    ? string
+    : TKind extends "OAuthed"
+    ? ClientAccount<"Native">
+    : never;
+  app: string;
+  accountIdentifier?: string;
+  site?: string;
+  note?: string;
+  tags?: ClientTag[];
+  lastUsed: Date | null;
+  lastPasswordUpdate: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  kind?: TKind;
+};
 
 export interface AddAccount {
   app: string;
@@ -66,6 +76,20 @@ export interface AddAccount {
 }
 
 export interface UpdateAccount extends AddAccount {
+  id: string;
+}
+
+export interface ClientAddAccount {
+  app: string;
+  isNative: boolean;
+  password: string;
+  accountIdentifier?: string;
+  site?: string;
+  note?: string;
+  tags?: string[];
+}
+
+export interface ClientUpdateAccount extends ClientAddAccount {
   id: string;
 }
 
