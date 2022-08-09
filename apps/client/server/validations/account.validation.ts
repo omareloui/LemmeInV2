@@ -1,5 +1,5 @@
 import z from "zod";
-import { contextId, mongoId } from "./utils";
+import { contextId, mongoId, userAndParamsContextIds } from "./utils";
 
 const createAndUpdateAccountBody = {
   app: z
@@ -25,13 +25,15 @@ export const createAccountValidation = {
 };
 
 export const getAccountValidation = {
-  params: z.object({ id: mongoId }),
+  context: userAndParamsContextIds,
 };
 
-export const getAccountsValidation = {};
+export const getAccountsValidation = {
+  context: contextId,
+};
 
 export const updateAccountValidation = {
-  params: z.object({ id: mongoId }),
+  context: userAndParamsContextIds,
   body: z.object(createAndUpdateAccountBody),
 };
 
@@ -40,7 +42,5 @@ export const updateAccountLastUsedValidation = {
 };
 
 export const deleteAccountValidation = {
-  params: z.object({
-    id: mongoId,
-  }),
+  context: userAndParamsContextIds,
 };

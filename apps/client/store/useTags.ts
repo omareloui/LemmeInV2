@@ -39,7 +39,7 @@ export const useTagsStore = defineStore("tags", {
     async getTags() {
       const authStore = useAuthStore();
       if (!authStore.isSigned) return;
-      const tags = (await useServerFetch("/tags")) as Tag[];
+      const tags = (await useTokenedFetch("/api/tags")) as Tag[];
       this.setTags(tags);
     },
 
@@ -48,7 +48,7 @@ export const useTagsStore = defineStore("tags", {
       try {
         let wantedColor = color;
         if (!wantedColor) wantedColor = getRandomColor();
-        const response = (await useServerFetch("/tags", {
+        const response = (await useTokenedFetch("/api/tags", {
           method: "POST",
           body: {
             name,
@@ -70,7 +70,7 @@ export const useTagsStore = defineStore("tags", {
         const { id } = options;
         const optionsForRequest = options as Optional<UpdateTag, "id">;
         delete optionsForRequest.id;
-        const response = (await useServerFetch(`/tags/${id}`, {
+        const response = (await useTokenedFetch(`/api/tags/${id}`, {
           method: "PUT",
           body: optionsForRequest,
         })) as Tag;
@@ -97,7 +97,7 @@ export const useTagsStore = defineStore("tags", {
           },
         );
         if (!confirmed) return false;
-        await useServerFetch(`/tags/${tagId}`, {
+        await useTokenedFetch(`/api/tags/${tagId}`, {
           method: "DELETE",
           headers: { "Content-Type": "text/plain" },
         });

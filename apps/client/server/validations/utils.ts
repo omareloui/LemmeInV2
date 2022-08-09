@@ -32,3 +32,14 @@ export const contextId = z.object({
     _id: mongoId,
   }),
 });
+
+export const paramsId = z.object({
+  params: z.object({
+    id: mongoId,
+  }),
+});
+
+export const userAndParamsContextIds = z.object({
+  user: z.object({ _id: mongoId }),
+  params: z.object({ id: mongoId }),
+});

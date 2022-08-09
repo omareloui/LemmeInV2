@@ -1,7 +1,7 @@
 import z from "zod";
 import { TAG_NAME_REGEX } from "server/utils";
 import tagColors from "~~/config/tag-colors";
-import { mongoId } from "./utils";
+import { contextId, userAndParamsContextIds } from "./utils";
 
 const createAndUpdateValidationBody = {
   name: z
@@ -17,16 +17,23 @@ const createAndUpdateValidationBody = {
 };
 
 export const createTagValidation = {
+  context: contextId,
   body: z.object(createAndUpdateValidationBody),
 };
 
-export const getTagsValidation = {};
+export const getTagValidation = {
+  context: userAndParamsContextIds,
+};
+
+export const getTagsValidation = {
+  context: contextId,
+};
 
 export const updateTagValidation = {
-  params: z.object({ id: mongoId }),
+  context: userAndParamsContextIds,
   body: z.object(createAndUpdateValidationBody),
 };
 
 export const deleteTagValidation = {
-  params: z.object({ id: mongoId }),
+  context: userAndParamsContextIds,
 };

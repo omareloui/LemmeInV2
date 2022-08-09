@@ -44,14 +44,14 @@ export const useNotesStore = defineStore("notes", {
     async getNotes() {
       const authStore = useAuthStore();
       if (!authStore.isSigned) return;
-      const notes = (await useServerFetch("/notes")) as Note[];
+      const notes = (await useTokenedFetch("/api/notes")) as Note[];
       this.decryptAndSetNotes(notes);
     },
 
     async getNote(noteId: string) {
       const noteFromStore = this.notes.find(x => x._id === noteId);
       if (noteFromStore) return noteFromStore;
-      const note = (await useServerFetch(`/notes/${noteId}`)) as Note;
+      const note = (await useTokenedFetch(`/api/notes/${noteId}`)) as Note;
       const dNote = await this.decryptNote(note);
       return dNote;
     },
@@ -62,7 +62,7 @@ export const useNotesStore = defineStore("notes", {
         if (!options.body && !options.title)
           throw new Error('"note" and "title" can\'t be both empty');
         const eNote = await this.encryptNote(options);
-        const note = (await useServerFetch("/notes", {
+        const note = (await useTokenedFetch("/api/notes", {
           body: eNote,
           method: "POST",
         })) as Note;
@@ -84,7 +84,7 @@ export const useNotesStore = defineStore("notes", {
         const optionsForRequest = options as Optional<UpdateNote, "id">;
         delete optionsForRequest.id;
         const eNote = await this.encryptNote(optionsForRequest);
-        const note = (await useServerFetch(`/notes/${id}`, {
+        const note = (await useTokenedFetch(`/api/notes/${id}`, {
           method: "PUT",
           body: eNote,
         })) as Note;
@@ -110,7 +110,7 @@ export const useNotesStore = defineStore("notes", {
           { acceptMessage: "Delete" },
         );
         if (!confirmed) return false;
-        await useServerFetch(`/notes/${noteId}`, {
+        await useTokenedFetch(`/api/notes/${noteId}`, {
           method: "DELETE",
           headers: { "Content-Type": "text/plain" },
         });

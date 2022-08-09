@@ -1,5 +1,5 @@
 import z from "zod";
-import { mongoId } from "./utils";
+import { contextId, mongoId, userAndParamsContextIds } from "./utils";
 
 const createAndUpdateValidationBody = {
   body: z.string().trim(),
@@ -8,16 +8,23 @@ const createAndUpdateValidationBody = {
 };
 
 export const createNoteValidation = {
+  context: contextId,
   body: z.object(createAndUpdateValidationBody),
 };
 
-export const getNotesValidation = {};
+export const getNotesValidation = {
+  context: contextId,
+};
+
+export const getNoteValidation = {
+  context: userAndParamsContextIds,
+};
 
 export const updateNoteValidation = {
-  params: z.object({ id: mongoId }),
+  context: userAndParamsContextIds,
   body: z.object(createAndUpdateValidationBody),
 };
 
 export const deleteNoteValidation = {
-  params: z.object({ id: mongoId }),
+  context: userAndParamsContextIds,
 };

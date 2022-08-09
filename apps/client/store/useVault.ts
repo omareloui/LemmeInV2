@@ -11,7 +11,6 @@ import {
   AddAccount as ServerAddAccount,
   ClientUpdateAccount as UpdateAccount,
   UpdateAccount as ServerUpdateAccount,
-  ClientTag as Tag,
   Optional,
 } from "types";
 
@@ -86,7 +85,7 @@ export const useVaultStore = defineStore("vault", {
     },
 
     async updateAccountsCache() {
-      const accounts = (await useServerFetch("/accounts")) as Account[];
+      const accounts = (await useTokenedFetch("/api/accounts")) as Account[];
       this.decryptAndSetAccounts(accounts);
     },
 
@@ -103,8 +102,8 @@ export const useVaultStore = defineStore("vault", {
         let acc = this.accounts.find(x => x._id === accountId);
         // Get the account if not in cache
         if (!acc) {
-          const account = (await useServerFetch(
-            `/accounts/${accountId}`,
+          const account = (await useTokenedFetch(
+            `/api/accounts/${accountId}`,
           )) as Account;
           acc = this.decryptAccount(account);
         }
@@ -149,7 +148,7 @@ export const useVaultStore = defineStore("vault", {
         ...optionsForRequest,
         kind,
       });
-      const account = (await useServerFetch(`/accounts/${id}`, {
+      const account = (await useTokenedFetch(`/api/accounts/${id}`, {
         method: "PUT",
         body: { ...eAccount, kind } as ServerUpdateAccount,
       })) as Account;
@@ -186,7 +185,7 @@ export const useVaultStore = defineStore("vault", {
           { acceptMessage: "Delete" },
         );
         if (!confirmed) return;
-        await useServerFetch(`/accounts/${accountId}`, {
+        await useTokenedFetch(`/api/accounts/${accountId}`, {
           method: "DELETE",
           headers: { "Content-Type": "text/plain" },
         });
@@ -241,7 +240,7 @@ export const useVaultStore = defineStore("vault", {
     },
 
     async updateLastUsed(accountId: string) {
-      await useServerFetch(`/accounts/${accountId}/last-used`, {
+      await useTokenedFetch(`/api/accounts/${accountId}/last-used`, {
         method: "PUT",
         headers: {
           "Content-Type": "text/plain",
