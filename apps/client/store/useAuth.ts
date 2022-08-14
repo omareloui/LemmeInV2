@@ -4,6 +4,7 @@ import { defineStore, acceptHMRUpdate } from "pinia";
 import {
   ACCESS_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
+  PBKD_COOKIE_NAME,
 } from "utils/constants";
 import getSecondsFromString from "utils/getSecondsFromString";
 import { useResourcesStore } from "store/useResources";
@@ -95,10 +96,25 @@ export const useAuthStore = defineStore("auth", {
       try {
         const { $generatePbkdf2 } = useNuxtApp();
         const key = await $generatePbkdf2(password);
-        this.pbk = key;
+        this.setPBKD(key);
       } catch (e) {
         $notify.error(useErrorMessage(e));
       }
+    },
+
+    setPBKD(key: string) {
+      const cookies = Cookie();
+      this.pbk = key;
+      cookies.set(PBKD_COOKIE_NAME, key, {
+        path: "/",
+        maxAge: getSecondsFromString("30d"),
+      });
+    },
+
+    setPBKDFromCookie() {
+      const cookies = Cookie();
+      const key = cookies.get(PBKD_COOKIE_NAME);
+      this.pbk = key;
     },
 
     setTokens(accessToken: Token, refreshToken: Token) {
@@ -115,9 +131,11 @@ export const useAuthStore = defineStore("auth", {
 
     removeCookies() {
       const cookies = Cookie();
-      [ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME].forEach(x =>
-        cookies.remove(x),
-      );
+      [
+        ACCESS_TOKEN_COOKIE_NAME,
+        REFRESH_TOKEN_COOKIE_NAME,
+        PBKD_COOKIE_NAME,
+      ].forEach(x => cookies.remove(x));
     },
 
     async signout() {

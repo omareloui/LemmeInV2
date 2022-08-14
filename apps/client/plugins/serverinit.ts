@@ -19,8 +19,7 @@ export default defineNuxtPlugin(async () => {
       await nextTick();
       navigateTo("/home");
     }
-    // TODO:
-    // await authStore.setKeyFromCookie();
+    authStore.setPBKDFromCookie();
     await resourcesStore.load();
   } catch (e) {
     shouldRemoveTokens = true;
